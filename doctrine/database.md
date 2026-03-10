@@ -1,0 +1,40 @@
+# Database
+
+Applies to: all projects with persistence
+
+## Requirements
+
+### Migrations
+
+- All schema changes MUST be managed through versioned migrations.
+- Migrations MUST be forward-only in production (no down migrations).
+- Each migration MUST be idempotent.
+- Migration tooling MUST be chosen per stack and run automatically on deployment.
+
+### Schema Versioning
+
+- Schema versions MUST be tracked in the database.
+- Migrations MUST be applied automatically during deployment.
+
+### Breaking Changes
+
+- Backward-compatible schema changes MUST be preferred.
+- Breaking changes MUST use the expand-and-contract pattern:
+  1. Expand: add new column/table alongside old
+  2. Migrate: backfill data, update application to use new schema
+  3. Contract: remove old column/table in a subsequent deployment
+- Breaking schema changes MUST be split across multiple deployments.
+
+### Data Seeding
+
+- Seed data for development/testing MUST be version-controlled.
+- Seed data MUST NOT contain real user data.
+
+## Output Requirements
+
+The generated database doc MUST:
+
+- Specify migration tooling for the chosen stack
+- Define naming conventions for migration files
+- Document the expand-and-contract strategy with an example
+- Define seed data approach
