@@ -26,6 +26,13 @@ Applies to: all
 - Stack-appropriate audit tools MUST run in CI (e.g., `npm audit`, `pip audit`, `cargo audit`).
 - Builds MUST fail on known high/critical vulnerabilities.
 
+### SBOM (Software Bill of Materials)
+
+- An SBOM MUST be generated in CI for every release.
+- SBOM format MUST be [SPDX](https://spdx.dev/) ([ISO/IEC 5962:2021](https://www.iso.org/standard/81870.html)).
+- The SBOM MUST be published alongside release artifacts.
+- The SBOM MUST include all direct and transitive dependencies.
+
 ## See Also
 
 - `security.md` — vulnerability scanning, SAST
@@ -39,3 +46,4 @@ The generated dependencies doc MUST:
 - Define the license allowlist
 - Define the vulnerability response process and SLA
 - Specify lockfile enforcement in CI
+- Define SBOM generation tooling and publication

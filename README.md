@@ -25,9 +25,9 @@ The LLM will:
 
 | File | Topic | Applies To |
 |---|---|---|
-| [architecture.md](doctrine/architecture.md) | Vertical slices, CQRS, modular monolith, dependency rule | all |
+| [architecture.md](doctrine/architecture.md) | Vertical slices, CQRS, modular monolith, dependency rule, timestamps | all |
 | [12-factor.md](doctrine/12-factor.md) | Config, statelessness, dev/prod parity | all |
-| [security.md](doctrine/security.md) | OWASP, OAuth2/OIDC, headers, audit logging | all |
+| [security.md](doctrine/security.md) | OWASP, OAuth2/OIDC, AuthZEN, encryption, headers, audit logging | all |
 | [accessibility.md](doctrine/accessibility.md) | WCAG 2.2 AAA | webapp |
 | [telemetry.md](doctrine/telemetry.md) | OpenTelemetry, structured logging, SLOs | all |
 | [testing.md](doctrine/testing.md) | 15 test types, TDD/BDD, 90% coverage | all |
@@ -44,7 +44,7 @@ The LLM will:
 | [secrets.md](doctrine/secrets.md) | Secret management, rotation, scanning | all |
 | [versioning.md](doctrine/versioning.md) | Semantic Versioning, automated bumps | all |
 | [git-workflow.md](doctrine/git-workflow.md) | Trunk-based dev, short-lived branches | all |
-| [dependencies.md](doctrine/dependencies.md) | Lockfiles, license auditing, vulnerability SLA | all |
+| [dependencies.md](doctrine/dependencies.md) | Lockfiles, license auditing, vulnerability SLA, SBOM | all |
 | [disaster-recovery.md](doctrine/disaster-recovery.md) | Backups, RTO/RPO, quarterly drills | all |
 | [dora.md](doctrine/dora.md) | Deployment frequency, lead time, MTTR, CFR | all |
 | [code-style.md](doctrine/code-style.md) | Formatting, linting, EditorConfig | all |

@@ -19,6 +19,7 @@ Applies to: all
 ### Pull Requests
 
 - All changes MUST go through a pull request.
+- PRs MUST be limited to 400 lines changed (excluding generated code and lockfiles). Larger PRs MUST be split.
 - PRs MUST pass all CI checks before merge.
 - PRs MUST be squash-merged to keep `main` history clean.
 

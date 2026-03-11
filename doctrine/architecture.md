@@ -15,6 +15,13 @@ Applies to: all
 - Slices MUST be independent — a change to one feature MUST NOT require changes in another feature's slice.
 - Deviations from vertical slice MUST be justified in an ADR.
 
+### Cross-Cutting Concerns
+
+- Prefer duplication over wrong abstraction — only extract shared code when the pattern is proven stable across 3+ slices.
+- A `shared/` or `infrastructure/` directory MAY exist for true cross-cutting concerns (middleware, database setup, framework wiring).
+- Shared code MUST NOT contain business logic — only infrastructure plumbing.
+- When in doubt, duplicate. Extract when the pattern is stable.
+
 ### CQRS (Command Query Responsibility Segregation)
 
 - Commands (operations that change state) MUST NOT return data, except for created resource identifiers.
@@ -33,6 +40,13 @@ Applies to: all
 - Infrastructure dependencies MUST be injected or abstracted at the module boundary.
 - Architecture tests (see `testing.md`) MUST enforce the dependency rule in CI.
 
+### Timestamps
+
+- All timestamps MUST be stored in UTC.
+- All timestamps MUST use ISO 8601 / [RFC 3339](https://www.rfc-editor.org/rfc/rfc3339) format.
+- Conversion to user timezone MUST happen at the presentation layer only.
+- System clocks MUST use NTP synchronization.
+
 ### Error Handling
 
 - Domain-specific error types MUST be used over generic language errors/exceptions.
@@ -46,14 +60,18 @@ Applies to: all
 - `12-factor.md` — stateless processes, backing services
 - `api-design.md` — CQRS aligns with API command/query endpoints
 - `documentation.md` — ADRs for architectural deviations
+- `i18n.md` — timezone display is a localization concern
+- `security.md` — AuthZEN aligns with dependency rule for authorization
 
 ## Output Requirements
 
 The generated architecture doc MUST:
 
 - Define the vertical slice directory structure for the chosen stack
+- Define cross-cutting concerns location and extraction criteria
 - Define the CQRS command and query separation with examples
 - Define module boundaries and their public APIs
 - Specify how the dependency rule is enforced (architecture test rules)
+- Define the timestamp/timezone strategy
 - Define the error handling strategy with domain error type examples
 - Include a Mermaid diagram of the module/slice structure

@@ -155,6 +155,16 @@ MUST be addressed in project documentation:
 
 - All remaining doctrine files
 
+## Existing Projects
+
+If applying this doctrine to an existing codebase (not greenfield):
+
+1. Audit the current state against all applicable doctrine files.
+2. Produce a gap analysis documenting what is missing or non-compliant.
+3. Prioritize Tier 1 gaps (security, data-privacy, testing) for immediate remediation.
+4. Create a roadmap for incremental adoption of Tier 2 requirements.
+5. Generate project docs as normal, noting existing state and required changes.
+
 ## License
 
 All projects MUST include the [MIT License](https://opensource.org/licenses/MIT).
