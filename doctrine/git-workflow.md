@@ -36,6 +36,7 @@ Applies to: all
 - `documentation.md` — Conventional Commits format, ADRs
 - `versioning.md` — version bumps from commits
 - `ci-cd.md` — CI checks required for PR merge
+- `dora.md` — deployment frequency, lead time
 
 ## Output Requirements
 

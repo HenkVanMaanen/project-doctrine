@@ -46,6 +46,7 @@ All of the following MUST be implemented:
 - `ci-cd.md` — test stages in pipeline, 10-minute budget
 - `performance.md` — load testing
 - `security.md` — SAST/DAST scanning
+- `dora.md` — change failure rate metric
 
 ## Output Requirements
 

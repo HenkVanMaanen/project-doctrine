@@ -53,6 +53,7 @@ Service Level Objectives MUST be set for each SLI with explicit targets.
 - `infrastructure.md` — health check endpoints
 - `security.md` — audit logging (distinct from operational logging)
 - `disaster-recovery.md` — alerting on recovery test failures
+- `dora.md` — delivery performance metrics
 
 ## Output Requirements
 

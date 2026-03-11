@@ -58,6 +58,7 @@ CI/CD pipelines MUST include these stages in order (parallelize where independen
 - `code-style.md` — formatting and linting in CI
 - `security.md` — security scanning stages
 - `infrastructure.md` — Docker image building
+- `dora.md` — deployment frequency, lead time for changes
 
 ## Output Requirements
 

@@ -46,7 +46,7 @@ Generate the following in the project's `docs/` directory:
 | `docs/architecture.md` | 12-factor, infrastructure |
 | `docs/security.md` | security, secrets |
 | `docs/accessibility.md` | accessibility (webapp only) |
-| `docs/observability.md` | telemetry |
+| `docs/observability.md` | telemetry, dora |
 | `docs/testing.md` | testing |
 | `docs/api.md` | api-design (API/webapp only) |
 | `docs/data-privacy.md` | data-privacy |
@@ -122,6 +122,7 @@ Generate a `CLAUDE.md` in the project root containing only:
 | `doctrine/git-workflow.md` | all |
 | `doctrine/dependencies.md` | all |
 | `doctrine/disaster-recovery.md` | all |
+| `doctrine/dora.md` | all |
 | `doctrine/code-style.md` | all |
 
 ## Priority Tiers
