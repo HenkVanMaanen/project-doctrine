@@ -2,7 +2,7 @@
 
 Meta-instructions for LLMs to generate project-specific documentation from standardized principles.
 
-This repository is a strict doctrine. You are an LLM reading this to generate project-specific documentation that will guide implementation. Do not produce code — produce docs.
+This repository is a strict doctrine. You are an LLM reading this to generate project-specific documentation that will guide implementation. Do not produce code — produce docs and starter config files.
 
 This doctrine uses [RFC 2119](https://www.rfc-editor.org/rfc/rfc2119) keywords (MUST, SHALL, SHOULD, MAY, MUST NOT).
 
@@ -16,13 +16,18 @@ Ask the user the following before proceeding:
 
 - **Project type**: webapp | API | CLI
 - **Tech stack**: language, framework, database
-- **Target users**: audience, expected scale (users, requests/sec)
+- **Target users**: audience, expected scale (concurrent users, peak requests/sec)
 - **Authentication**: required? existing provider?
 - **Data sensitivity**: what PII or sensitive data will be handled?
+- **Multi-tenant or single-tenant?**
+- **Open source or proprietary?**
 - **Infrastructure**: cloud provider, CI/CD platform, container orchestration
 - **Deployment targets**: regions, compliance jurisdictions
+- **Regulatory requirements beyond GDPR?** (e.g., PCI-DSS, HIPAA)
 - **External integrations**: third-party APIs, services
 - **Monorepo or polyrepo**: single repo or multiple?
+- **Offline/PWA requirements?**
+- **Expected traffic patterns**: sustained load, peak spikes, seasonal variation
 
 ### Step 2: Read Doctrine
 
@@ -62,11 +67,31 @@ Each generated doc MUST:
 - Use RFC 2119 keywords
 - Link to standards rather than repeating their content
 
-### Step 5: Generate Project AGENTS.md
+### Step 5: Generate Starter Config Files
+
+Alongside docs, generate applicable config files in the project root:
+
+- `.editorconfig`
+- `.gitignore`
+- `Dockerfile` and `docker-compose.yml`
+- Formatter config (e.g., `.prettierrc`, `rustfmt.toml`)
+- Linter config (e.g., `.eslintrc.json`, `clippy.toml`)
+- Pre-commit hook config
+- PR template (`.github/pull_request_template.md` or equivalent)
+- `.env.example`
+- `CHANGELOG.md` (initial)
+
+Only generate files applicable to the chosen stack and project type.
+
+### Step 6: Generate Tier 1 Compliance Checklist
+
+Generate `docs/tier1-checklist.md` — a checklist covering all Tier 1 (non-negotiable) requirements from `security.md`, `data-privacy.md`, and `testing.md`. This checklist MUST be reviewed and confirmed before implementation begins.
+
+### Step 7: Generate Project AGENTS.md
 
 Generate an `AGENTS.md` in the project root that instructs an LLM to implement the project following all generated docs in `docs/`. This file MUST reference each generated doc.
 
-### Step 6: Generate Project CLAUDE.md
+### Step 8: Generate Project CLAUDE.md
 
 Generate a `CLAUDE.md` in the project root containing only:
 
@@ -103,7 +128,7 @@ Generate a `CLAUDE.md` in the project root containing only:
 
 ### Tier 1 — Non-negotiable
 
-MUST be fully addressed before any implementation begins:
+MUST be fully addressed before any implementation begins. A Tier 1 compliance checklist MUST be generated and confirmed:
 
 - `security.md`
 - `data-privacy.md`

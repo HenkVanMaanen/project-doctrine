@@ -36,11 +36,30 @@ Service Level Indicators MUST be defined for:
 
 Service Level Objectives MUST be set for each SLI with explicit targets.
 
+### Alerting
+
+- Alerts MUST be derived from SLOs.
+- Alert when SLO burn rate indicates the error budget will be exhausted — use multi-window, multi-burn-rate alerting.
+- Every alert MUST have a documented runbook.
+
+### Meta-Monitoring
+
+- The telemetry pipeline itself (collector, backend) SHOULD have a health check via a separate, simple monitoring path that does not depend on the primary telemetry stack.
+- Telemetry pipeline failures SHOULD trigger alerts through an independent channel (e.g., basic uptime check, email).
+
+## See Also
+
+- `performance.md` — response time budgets, load testing
+- `infrastructure.md` — health check endpoints
+- `security.md` — audit logging (distinct from operational logging)
+- `disaster-recovery.md` — alerting on recovery test failures
+
 ## Output Requirements
 
 The generated observability doc MUST:
 
 - Define SLIs and SLOs with numeric targets
 - Specify the telemetry stack (collector, backend, visualization)
-- Define alerting rules derived from SLOs
+- Define alerting rules derived from SLOs with burn rate thresholds
+- Define meta-monitoring approach
 - Include a Mermaid diagram of the telemetry data flow

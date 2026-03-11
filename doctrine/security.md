@@ -4,8 +4,9 @@
 
 - OWASP Top 10: https://owasp.org/www-project-top-ten/
 - OWASP ASVS: https://owasp.org/www-project-application-security-verification-standard/
+- GraphQL Security: https://cheatsheetseries.owasp.org/cheatsheets/GraphQL_Cheat_Sheet.html
 
-Fetch the latest versions of both when generating project docs.
+Fetch the latest versions when generating project docs.
 
 Applies to: all
 
@@ -33,6 +34,17 @@ The following MUST be configured:
 
 - CORS MUST be explicitly configured per endpoint. Wildcard (`*`) MUST NOT be used in production.
 
+### GraphQL Security
+
+If the project uses GraphQL, the following MUST be applied (per [OWASP GraphQL Cheat Sheet](https://cheatsheetseries.owasp.org/cheatsheets/GraphQL_Cheat_Sheet.html)):
+
+- Query depth limiting MUST be enforced.
+- Query complexity analysis MUST be implemented with a maximum cost threshold.
+- Introspection MUST be disabled in production.
+- Field-level authorization MUST be enforced — never rely solely on resolver-level checks.
+- Batched query abuse MUST be mitigated (limit batch size).
+- Persisted/allowlisted queries SHOULD be used in production.
+
 ### Security Scanning
 
 - Dependency vulnerability scanning MUST run in CI.
@@ -46,12 +58,30 @@ The following MUST be configured:
 - Apply OWASP input validation guidelines.
 - Parameterized queries MUST be used for all database operations.
 
+### Audit Logging
+
+- All data access and mutations MUST be logged to an audit trail.
+- Audit log entries MUST include: timestamp, actor (user/service), action, resource, outcome (success/failure), source IP.
+- Audit logs MUST be stored separately from application logs.
+- Audit logs MUST be tamper-evident (append-only, or signed).
+- Audit log retention MUST comply with `data-privacy.md` retention policies.
+- PII in audit logs MUST be pseudonymized where possible.
+
+## See Also
+
+- `secrets.md` — secret storage, rotation, and scanning
+- `data-privacy.md` — data classification and GDPR compliance
+- `api-design.md` — API-level security (rate limiting, error handling)
+- `telemetry.md` — operational logging (distinct from audit logging)
+
 ## Output Requirements
 
 The generated security doc MUST:
 
-- Include a threat model (STRIDE or equivalent)
+- Include a threat model (STRIDE or equivalent) covering all entry points and trust boundaries
 - Define the authentication/authorization flow with sequence diagram (Mermaid)
 - List all required HTTP security headers with exact values
 - Specify chosen scanning tools and CI integration
 - Address each item in the current OWASP Top 10
+- Define the audit logging strategy and storage
+- Include GraphQL security measures (if applicable)

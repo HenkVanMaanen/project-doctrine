@@ -31,9 +31,15 @@ Applies to: all
 - No direct commits
 - Signed commits SHOULD be required
 
+## See Also
+
+- `documentation.md` — Conventional Commits format, ADRs
+- `versioning.md` — version bumps from commits
+- `ci-cd.md` — CI checks required for PR merge
+
 ## Output Requirements
 
-The generated versioning doc MUST:
+The generated versioning doc MUST include git workflow sections that:
 
 - Define branch protection rules for the chosen platform
 - Define PR template

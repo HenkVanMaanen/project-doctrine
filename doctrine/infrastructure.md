@@ -14,11 +14,24 @@ Applies to: all
   - `.dockerignore` configured
 - Docker Compose MUST be provided for local development.
 
+### Container Registry
+
+- Proprietary projects MUST use a private container registry. Open source projects MAY use a public registry.
+- Container images MUST be signed and verified before deployment.
+- Vulnerability scanning MUST run on every image push.
+- Tags MUST be immutable — overwriting existing tags MUST NOT be allowed.
+- Images MUST be tagged with the git commit SHA and semantic version.
+
 ### Infrastructure as Code
 
 - All infrastructure MUST be defined as code.
 - Choose tooling appropriate for the target platform (Terraform, Pulumi, CloudFormation, etc.).
 - IaC MUST be version-controlled alongside application code or in a dedicated repo.
+
+### Vendor Lock-in
+
+- Architectural decisions with portability implications (cloud-specific services, proprietary APIs) MUST be documented in an ADR with an exit strategy.
+- Abstraction layers SHOULD be used for cloud-specific services where practical.
 
 ### Health Checks
 
@@ -38,11 +51,26 @@ The following endpoints MUST be implemented:
 - Dev, staging, and production MUST use the same container images.
 - Backing services MUST be the same type across environments.
 
+### Cost Awareness
+
+- Cost implications MUST be documented in ADRs for infrastructure decisions.
+- Resource budgets per environment SHOULD be defined.
+- Cost alerts SHOULD be configured for cloud-based infrastructure.
+
+## See Also
+
+- `12-factor.md` — config management, dev/prod parity
+- `ci-cd.md` — container image building, deployment
+- `disaster-recovery.md` — backup infrastructure, failover
+- `telemetry.md` — health check integration with observability
+
 ## Output Requirements
 
 The generated architecture doc MUST:
 
 - Define the container architecture as a Mermaid diagram
+- Specify container registry setup (signing, scanning, tagging)
 - Specify health check endpoints and their logic
 - Define IaC tooling and directory structure
+- Document vendor lock-in risks and exit strategies
 - Include local development setup instructions (single command to start)

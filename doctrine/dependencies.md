@@ -26,6 +26,11 @@ Applies to: all
 - Stack-appropriate audit tools MUST run in CI (e.g., `npm audit`, `pip audit`, `cargo audit`).
 - Builds MUST fail on known high/critical vulnerabilities.
 
+## See Also
+
+- `security.md` — vulnerability scanning, SAST
+- `ci-cd.md` — security scan pipeline stage
+
 ## Output Requirements
 
 The generated dependencies doc MUST:

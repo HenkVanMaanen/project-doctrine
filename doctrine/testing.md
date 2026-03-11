@@ -39,6 +39,13 @@ All of the following MUST be implemented:
 
 - Test data MUST NOT contain real user data.
 - Factories or builders MUST be used over hard-coded fixtures.
+- Test data MUST be isolated per test suite and cleaned up after execution.
+
+## See Also
+
+- `ci-cd.md` — test stages in pipeline, 10-minute budget
+- `performance.md` — load testing
+- `security.md` — SAST/DAST scanning
 
 ## Output Requirements
 

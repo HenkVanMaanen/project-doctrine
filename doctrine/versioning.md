@@ -17,6 +17,12 @@ Applies to: all
 - Git tags MUST be created for each release.
 - Pre-release versions MUST use SemVer pre-release format (e.g., `1.0.0-beta.1`).
 
+## See Also
+
+- `git-workflow.md` — branching, commit conventions
+- `documentation.md` — changelog, Conventional Commits
+- `api-design.md` — API versioning and deprecation policy
+
 ## Output Requirements
 
 The generated versioning doc MUST:

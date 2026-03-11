@@ -38,6 +38,12 @@ Applies to: all
 - Shutdown timeout MUST be configured.
 - Services MUST deregister from load balancers before stopping.
 
+## See Also
+
+- `telemetry.md` — metrics and alerting for circuit breaker state
+- `infrastructure.md` — health checks, container orchestration
+- `api-design.md` — backpressure, rate limiting
+
 ## Output Requirements
 
 The generated resilience doc MUST:

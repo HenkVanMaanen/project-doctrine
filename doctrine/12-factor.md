@@ -13,6 +13,7 @@ All twelve factors MUST be applied. Key decisions for this doctrine:
 - Config MUST be stored in environment variables or a secret manager.
 - Environment variables are acceptable for non-sensitive config.
 - Sensitive values MUST use a secret manager. See `secrets.md`.
+- All required config MUST be validated at application startup — the application MUST fail fast with a clear error if required config is missing, malformed, or out of expected range.
 
 ### VI. Processes
 
@@ -22,13 +23,20 @@ All twelve factors MUST be applied. Key decisions for this doctrine:
 
 ### X. Dev/Prod Parity
 
-- Docker MUST be used to minimize environment gaps.
+- Docker MUST be used to minimize environment gaps. See `infrastructure.md`.
 - All environments MUST use the same backing service types.
 
 ### XI. Logs
 
 - Logs MUST be treated as event streams.
 - See `telemetry.md` for structured logging requirements.
+
+## See Also
+
+- `secrets.md` — secret manager selection and rotation
+- `security.md` — JWT and authentication
+- `telemetry.md` — structured logging
+- `infrastructure.md` — Docker and environment parity
 
 ## Output Requirements
 
@@ -37,3 +45,4 @@ The generated architecture doc MUST:
 - Map each of the 12 factors to the project's specific implementation
 - Identify all backing services and their connection strategy
 - Define the config management approach (env vars vs. secret manager per config item)
+- Define config validation rules and startup behavior

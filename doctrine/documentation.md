@@ -14,9 +14,12 @@ Applies to: all
 ### Architecture Decision Records
 
 - An ADR MUST be created for every significant technical decision.
-- ADRs MUST follow the format: Title, Status, Context, Decision, Consequences.
+- ADRs MUST follow the format: Title, Status, Date, Context, Decision, Consequences.
 - ADRs MUST be stored in `docs/adr/` with sequential numbering (`0001-*.md`).
-- Superseded ADRs MUST be marked as such, not deleted.
+- ADR status MUST use one of: `Proposed`, `Accepted`, `Superseded`, `Deprecated`, `Rejected`.
+- Status transitions MUST include a date and rationale.
+- Superseded ADRs MUST link to their successor (e.g., "Superseded by ADR-0005").
+- ADRs MUST NOT be deleted.
 
 ### Changelog
 
@@ -42,11 +45,17 @@ Applies to: all
 - API docs MUST be generated from OpenAPI spec or GraphQL schema.
 - API docs MUST be browsable in non-production environments.
 
+## See Also
+
+- `git-workflow.md` — commit conventions, PR process
+- `versioning.md` — release process, version bumps
+- `api-design.md` — OpenAPI/GraphQL spec as doc source
+
 ## Output Requirements
 
 The generated documentation doc MUST:
 
-- Define the ADR template
+- Define the ADR template with all status values
 - Specify diagram tooling setup (Mermaid)
 - Define changelog automation approach
 - Include commit message format with examples

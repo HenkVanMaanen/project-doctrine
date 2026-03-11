@@ -35,11 +35,16 @@ Pre-commit hooks MUST run:
 2. Linter
 3. Secret scanner
 
+## See Also
+
+- `ci-cd.md` — lint and format as first pipeline stage
+- `documentation.md` — commit message conventions
+
 ## Output Requirements
 
-The generated CI/CD doc MUST:
+The generated CI/CD doc MUST include code style sections that:
 
-- Specify formatter and linter for the chosen stack
+- Specify formatter and linter for the chosen stack with config files
 - Define pre-commit hook setup
 - Include `.editorconfig` specification
 - Define lint rule exception policy

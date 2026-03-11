@@ -27,6 +27,12 @@ Applies to: all
 - Secrets MUST follow least-privilege access.
 - Secret access MUST be auditable.
 
+## See Also
+
+- `security.md` — authentication, audit logging
+- `12-factor.md` — config management (env vars vs. secret manager)
+- `ci-cd.md` — pipeline secret management
+
 ## Output Requirements
 
 The generated security doc MUST:

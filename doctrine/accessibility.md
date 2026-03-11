@@ -20,6 +20,11 @@ Applies to: webapp
 - Motion and animation MUST respect `prefers-reduced-motion`.
 - All media MUST have captions, transcripts, and audio descriptions where applicable.
 
+## See Also
+
+- `i18n.md` — language support, text direction (LTR/RTL)
+- `testing.md` — accessibility testing in CI
+
 ## Output Requirements
 
 The generated accessibility doc MUST:

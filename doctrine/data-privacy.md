@@ -34,14 +34,37 @@ The system MUST support:
 - Right to erasure ([Art. 17](https://gdpr-info.eu/art-17-gdpr/))
 - Right to data portability ([Art. 20](https://gdpr-info.eu/art-20-gdpr/))
 
+### Erasure and Audit Trail Reconciliation
+
+- When erasure is requested, PII MUST be hard-deleted (physical deletion).
+- Audit log entries referencing the deleted user MUST be anonymized or pseudonymized — never deleted entirely.
+- The erasure process MUST be documented in an ADR specifying the implementation per data type.
+- Anonymization MUST be irreversible — pseudonymized IDs MUST NOT be mappable back to the original user after erasure.
+
 ### Retention
 
 - Data retention policies MUST be defined for each data category.
 - Automated deletion MUST be implemented for expired data.
 
+### Multi-Tenancy
+
+If the project is multi-tenant:
+
+- Tenant data isolation MUST be enforced at the data layer (e.g., row-level security, schema-per-tenant, or database-per-tenant).
+- Tenant context MUST be propagated through all layers of the application.
+- Cross-tenant data access MUST be impossible by default — any exception requires an ADR.
+- Tenant isolation MUST be verified through automated tests.
+
 ### Data Protection Impact Assessment
 
 - A DPIA MUST be conducted when processing sensitive data at scale.
+
+## See Also
+
+- `security.md` — audit logging, authentication
+- `database.md` — migrations, schema management
+- `disaster-recovery.md` — backup and data recovery
+- `secrets.md` — restricted data (credentials, keys)
 
 ## Output Requirements
 
@@ -51,4 +74,6 @@ The generated data privacy doc MUST:
 - Include a Mermaid data flow diagram showing where PII is processed and stored
 - Define retention periods per data category
 - Define data subject rights implementation plan
+- Define the erasure strategy (hard delete PII, anonymize audit records)
+- Define multi-tenancy isolation strategy (if applicable)
 - Assess DPIA necessity

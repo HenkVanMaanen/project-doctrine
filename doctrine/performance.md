@@ -26,6 +26,15 @@ Applies to: all (Core Web Vitals for webapp only)
   - p99 target
 - Performance/load tests MUST run in CI against staging.
 
+### Load Testing
+
+- Load test scenarios MUST be derived from expected traffic patterns defined during discovery (concurrent users, peak RPS).
+- Tests MUST cover:
+  - **Sustained load** — expected normal traffic over time
+  - **Spike load** — sudden traffic bursts (e.g., 10x normal)
+  - **Soak testing** — extended duration to detect memory leaks and resource exhaustion
+- Load test results MUST define pass/fail criteria tied to response time budgets and error rate SLOs.
+
 ### Caching
 
 - HTTP cache headers MUST be configured per resource type:
@@ -36,11 +45,18 @@ Applies to: all (Core Web Vitals for webapp only)
 - Application-level caching strategy MUST be defined for frequently accessed data.
 - Cache invalidation strategy MUST be documented.
 
+## See Also
+
+- `telemetry.md` — SLOs/SLIs, latency metrics
+- `infrastructure.md` — CDN, health checks
+- `ci-cd.md` — performance tests in pipeline
+
 ## Output Requirements
 
 The generated performance doc MUST:
 
 - Define performance budgets with specific numeric targets
+- Define load test scenarios derived from discovery traffic patterns
 - Specify caching strategy per resource type
 - Define performance testing approach and tools
 - Include CI integration for budget enforcement

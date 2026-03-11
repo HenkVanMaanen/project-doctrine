@@ -30,6 +30,12 @@ Applies to: all projects with persistence
 - Seed data for development/testing MUST be version-controlled.
 - Seed data MUST NOT contain real user data.
 
+## See Also
+
+- `disaster-recovery.md` — database backup, restoration, recovery drills
+- `data-privacy.md` — data classification, retention, erasure
+- `ci-cd.md` — migration execution in pipeline
+
 ## Output Requirements
 
 The generated database doc MUST:
