@@ -63,6 +63,7 @@ The following endpoints MUST be implemented:
 - `ci-cd.md` — container image building, deployment
 - `disaster-recovery.md` — backup infrastructure, failover
 - `telemetry.md` — health check integration with observability
+- `testing.md` — infrastructure tests validate IaC
 
 ## Output Requirements
 

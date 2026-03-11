@@ -43,6 +43,7 @@ Applies to: all
 - `telemetry.md` — metrics and alerting for circuit breaker state
 - `infrastructure.md` — health checks, container orchestration
 - `api-design.md` — backpressure, rate limiting
+- `testing.md` — chaos/fault injection tests validate resilience patterns
 
 ## Output Requirements
 

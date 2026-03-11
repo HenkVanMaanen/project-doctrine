@@ -35,6 +35,7 @@ Applies to: all projects with persistence
 - `disaster-recovery.md` — database backup, restoration, recovery drills
 - `data-privacy.md` — data classification, retention, erasure
 - `ci-cd.md` — migration execution in pipeline
+- `testing.md` — data migration tests verify schema and data integrity
 
 ## Output Requirements
 

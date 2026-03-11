@@ -16,17 +16,23 @@ CI/CD pipelines MUST include these stages in order (parallelize where independen
 
 1. **Lint & Format** — code style enforcement (see `code-style.md`)
 2. **Build** — compile/bundle
-3. **Unit Tests** — with coverage check (>= 90%)
-4. **Integration Tests** — with testcontainers or equivalent
-5. **Security Scan** — dependency vulnerabilities + SAST
-6. **Mutation Tests** — with kill rate check (>= 90%)
-7. **Fuzz Tests** — with 1-minute time limit
-8. **Contract Tests** — if applicable
-9. **Build Container Image** — Docker
-10. **Deploy to Staging** — automated
-11. **E2E Tests** — against staging
-12. **DAST** — against staging
-13. **Deploy to Production** — with approval gate
+3. **Architecture Tests** — structural rule enforcement
+4. **Unit Tests** — with coverage check (>= 90%)
+5. **Integration Tests** — with testcontainers or equivalent
+6. **Data Migration Tests** — migration correctness and integrity
+7. **Concurrency Tests** — if shared mutable state exists
+8. **Security Scan** — dependency vulnerabilities + SAST
+9. **Mutation Tests** — with kill rate check (>= 90%)
+10. **Fuzz Tests** — with 1-minute time limit
+11. **Contract Tests** — if applicable
+12. **Infrastructure Tests** — IaC validation
+13. **Build Container Image** — Docker
+14. **Deploy to Staging** — automated
+15. **E2E Tests** — against staging
+16. **Chaos Tests** — fault injection against staging
+17. **DAST** — against staging
+18. **Deploy to Production** — with approval gate
+19. **Smoke Tests** — post-deployment critical path verification (< 1 min, triggers rollback on failure)
 
 ### Deployment Strategy
 
