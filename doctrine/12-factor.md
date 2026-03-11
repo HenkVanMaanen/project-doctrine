@@ -33,6 +33,7 @@ All twelve factors MUST be applied. Key decisions for this doctrine:
 
 ## See Also
 
+- `architecture.md` — vertical slices, CQRS, dependency rule
 - `secrets.md` — secret manager selection and rotation
 - `security.md` — JWT and authentication
 - `telemetry.md` — structured logging

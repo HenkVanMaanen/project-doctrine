@@ -66,6 +66,7 @@ Applies to: API, webapp
 - `resilience.md` — circuit breakers, retries, timeouts for service calls
 - `versioning.md` — semantic versioning for releases
 - `performance.md` — response time budgets
+- `architecture.md` — CQRS aligns with command/query API endpoints
 
 ## Output Requirements
 

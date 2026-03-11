@@ -43,7 +43,7 @@ Generate the following in the project's `docs/` directory:
 
 | Output File | Source Doctrine Files |
 |---|---|
-| `docs/architecture.md` | 12-factor, infrastructure |
+| `docs/architecture.md` | architecture, 12-factor, infrastructure |
 | `docs/security.md` | security, secrets |
 | `docs/accessibility.md` | accessibility (webapp only) |
 | `docs/observability.md` | telemetry, dora |
@@ -103,6 +103,7 @@ Generate a `CLAUDE.md` in the project root containing only:
 
 | File | Applies To |
 |---|---|
+| `doctrine/architecture.md` | all |
 | `doctrine/12-factor.md` | all |
 | `doctrine/security.md` | all |
 | `doctrine/accessibility.md` | webapp |

@@ -101,6 +101,7 @@ All of the following MUST be implemented where applicable:
 - `infrastructure.md` — IaC validated by infrastructure tests
 - `database.md` — migrations validated by data migration tests
 - `dora.md` — change failure rate metric
+- `architecture.md` — dependency rule enforced by architecture tests
 
 ## Output Requirements
 
