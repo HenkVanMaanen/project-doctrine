@@ -19,6 +19,11 @@ Applies to: all
 - Token lifetimes MUST be short-lived with refresh token rotation.
 - Refresh tokens MUST be bound to the client and rotated on use.
 
+### Service-to-Service Authentication
+
+- Service-to-service communication MUST use OAuth 2.0 client credentials flow ([RFC 6749 Section 4.4](https://www.rfc-editor.org/rfc/rfc6749#section-4.4)) or mTLS ([RFC 8705](https://www.rfc-editor.org/rfc/rfc8705)).
+- API keys MUST NOT be used as the sole authentication mechanism for service-to-service communication.
+
 ### HTTP Security Headers
 
 The following MUST be configured:
@@ -84,4 +89,5 @@ The generated security doc MUST:
 - Specify chosen scanning tools and CI integration
 - Address each item in the current OWASP Top 10
 - Define the audit logging strategy and storage
+- Define service-to-service authentication flow (if applicable)
 - Include GraphQL security measures (if applicable)

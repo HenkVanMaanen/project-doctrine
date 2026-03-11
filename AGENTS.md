@@ -43,7 +43,7 @@ Generate the following in the project's `docs/` directory:
 
 | Output File | Source Doctrine Files |
 |---|---|
-| `docs/architecture.md` | architecture, 12-factor, infrastructure |
+| `docs/architecture.md` | architecture, 12-factor, infrastructure, cli (CLI only) |
 | `docs/security.md` | security, secrets |
 | `docs/accessibility.md` | accessibility (webapp only) |
 | `docs/observability.md` | telemetry, dora |
@@ -87,11 +87,23 @@ Only generate files applicable to the chosen stack and project type.
 
 Generate `docs/tier1-checklist.md` — a checklist covering all Tier 1 (non-negotiable) requirements from `security.md`, `data-privacy.md`, and `testing.md`. This checklist MUST be reviewed and confirmed before implementation begins.
 
-### Step 7: Generate Project AGENTS.md
+### Step 7: Validate Consistency
+
+Review all generated docs for internal consistency. Verify:
+
+- No contradictions between docs (e.g., performance budgets vs. testing requirements)
+- All cross-references between docs are valid
+- Tooling choices are consistent across docs (same test framework, same CI platform, etc.)
+- Security headers don't conflict with CDN or caching config
+- All acceptance criteria are measurable and non-overlapping
+
+If inconsistencies are found, resolve them and document the rationale.
+
+### Step 8: Generate Project AGENTS.md
 
 Generate an `AGENTS.md` in the project root that instructs an LLM to implement the project following all generated docs in `docs/`. This file MUST reference each generated doc.
 
-### Step 8: Generate Project CLAUDE.md
+### Step 9: Generate Project CLAUDE.md
 
 Generate a `CLAUDE.md` in the project root containing only:
 
@@ -124,6 +136,7 @@ Generate a `CLAUDE.md` in the project root containing only:
 | `doctrine/dependencies.md` | all |
 | `doctrine/disaster-recovery.md` | all |
 | `doctrine/dora.md` | all |
+| `doctrine/cli.md` | CLI |
 | `doctrine/code-style.md` | all |
 
 ## Priority Tiers

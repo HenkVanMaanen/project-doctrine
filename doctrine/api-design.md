@@ -55,6 +55,13 @@ Applies to: API, webapp
 - Internal services SHOULD implement rate limiting.
 - Load shedding MUST be implemented when a service is overloaded — prefer rejecting new requests over degrading all requests.
 
+### Idempotency
+
+- All mutating API endpoints MUST define their idempotency behavior in the API spec.
+- Naturally idempotent operations (PUT, DELETE) MUST remain idempotent.
+- Non-naturally-idempotent operations (POST) MUST support idempotency keys via the `Idempotency-Key` header ([IETF draft-ietf-httpapi-idempotency-key-header](https://datatracker.ietf.org/doc/draft-ietf-httpapi-idempotency-key-header/)). Fetch the latest status — it may have been finalized as an RFC.
+- Idempotency key responses MUST be cached and replayed for duplicate requests.
+
 ### Pagination
 
 - Collection endpoints MUST support pagination.
@@ -77,5 +84,6 @@ The generated API doc MUST:
 - Define deprecation policy with timeline
 - Include error response format with examples
 - Define rate limiting tiers (public and internal)
+- Define idempotency strategy for mutating endpoints
 - Reference the OpenAPI spec or GraphQL schema location
 - Include a Mermaid sequence diagram for key API flows
