@@ -179,8 +179,8 @@ Build everything required by the Tier 1 checklist (`docs/tier1-checklist.md`). E
 - Audit log pseudonymization: emails stored as `sha256(email + AUDIT_SALT)`, never plaintext
 
 **Observability:**
-- OpenTelemetry: install and configure `@opentelemetry/sdk-node` with auto-instrumentation for HTTP, PostgreSQL, Redis
-- Structured logging: pino with `traceId`, `spanId`, `tenantId`, `service` in every log entry
+- OpenTelemetry: install and configure `@opentelemetry/sdk-node` with auto-instrumentation for HTTP, PostgreSQL, Redis. OTel MUST initialize unconditionally (not skip when an env var is missing) — in development/test it can export to a no-op or console exporter, but the SDK MUST be active so traceId/spanId are always available
+- Structured logging: pino with `traceId`, `spanId`, `tenantId`, `service` in every log entry. The logger MUST extract trace context from OpenTelemetry's active span and inject it into every log line — do NOT just log static fields. Use `pino-opentelemetry-transport` or manually call `trace.getActiveSpan()` to get the current traceId/spanId
 - Health checks: `/healthz` (liveness) and `/readyz` (readiness with DB+Redis checks)
 - `traceId` in error responses: every RFC 9457 Problem Details response MUST include a trace/request ID
 
@@ -190,10 +190,12 @@ Build every endpoint and feature defined in the generated `AGENTS.md`. Do not sk
 
 - Every endpoint listed in the generated `AGENTS.md` MUST be implemented
 - Every route MUST have authentication (`authenticate` preHandler)
-- Every state-changing route MUST call the audit logging service
-- Every route that accepts user input MUST validate with Zod at the boundary
+- Every state-changing route MUST call the audit logging service — this includes token refresh, not just CRUD operations
+- Every route that accepts user input MUST validate with Zod at the boundary — this includes path parameters (e.g., validate `:id` as UUID)
 - Every database query MUST use parameterized queries
 - Cache invalidation MUST occur when data changes (if caching is used)
+- Rate limiting MUST be per-endpoint (e.g., stricter limits on auth endpoints), not just a single global limit
+- RBAC roles on endpoints must be meaningful — `requireRole('member')` on a DELETE is effectively no protection since member is the lowest role
 
 Follow TDD for each feature: write failing test → implement → verify pass.
 
@@ -208,25 +210,29 @@ Generate an `openapi.yaml` (or `openapi.json`) in the project root that document
 
 #### 10.5: Implement All Test Types
 
-Every test type defined in `docs/testing.md` MUST have at least one working test:
+Every test type defined in `docs/testing.md` MUST have at least one working test. "Working" means the test exercises real logic and would catch real bugs — not just `expect(true).toBe(true)` or mocks asserting against other mocks.
 
-| Test Type | Minimum Requirement |
-|---|---|
-| Unit | Tests for all services and middleware |
-| Integration | Tests using real DB/Redis (Testcontainers or equivalent), not mocks |
-| E2E | At least one full request flow (create link → redirect → verify analytics) |
-| Contract | OpenAPI spec validation against actual routes |
-| Property-based | At least one test using fast-check or equivalent for core domain logic |
-| Mutation | Stryker config file with thresholds (runs in deploy pipeline, not required to pass locally) |
-| Fuzz | At least one fuzz target for input parsing |
-| Architecture | dependency-cruiser config (`.dependency-cruiser.cjs`) with rules enforcing the dependency direction |
-| Smoke | Post-deploy smoke test script that hits health + core endpoints |
-| Chaos | At least one fault injection test (e.g., Redis down → circuit breaker activates) |
-| Concurrency | At least one test for concurrent writes (e.g., duplicate short code prevention) |
-| Data migration | At least one test that applies migrations and verifies schema |
-| Infrastructure | Container image test (correct base, non-root user, health check) |
+**Do not fake test types.** A unit test relabeled as "concurrency" is not a concurrency test. A test that reads SQL file text is not a migration test. A test that validates a YAML schema is not a contract test. Each test type MUST use the technique appropriate to that type.
+
+| Test Type | What It MUST Do | What It MUST NOT Do |
+|---|---|---|
+| Unit | Test services and middleware with mocked dependencies | — |
+| Integration | Run against real DB/Redis (Testcontainers, docker-compose services, or CI service containers). Cover at minimum: auth, links CRUD, and GDPR flows | Use `vi.mock()` for DB/Redis — that's a unit test |
+| E2E | Full request flow through the running app with real DB/Redis | Mock any infrastructure |
+| Contract | Load the OpenAPI spec, then make real HTTP requests to the running app and validate that responses match the spec schemas (use a library like `openapi-backend`, `swagger-jsdoc` validation, or manually validate response shapes against spec) | Only validate the YAML/JSON structure of the spec file itself — that tests the spec, not the implementation |
+| Property-based | Use fast-check or equivalent to test domain invariants with random inputs | Use hand-picked inputs — that's a unit test |
+| Mutation | Install Stryker, configure it, and run `pnpm test:mutation` to verify it executes successfully. The mutation score threshold MUST be defined. Stryker MUST actually mutate source files and run tests against them | Only create a config file without verifying Stryker runs |
+| Fuzz | Use fast-check `fc.anything()` or equivalent to throw random/malformed input at parsers and validators | Use a small set of hand-crafted edge cases — that's a unit test |
+| Architecture | Run dependency-cruiser and fail if architectural rules are violated. The test MUST NOT silently pass if dependency-cruiser is unavailable — it must fail | Catch dependency-cruiser errors and `console.warn` + pass |
+| Smoke | Boot the real app (or hit a deployed URL) and verify critical paths respond correctly | — |
+| Chaos | Simulate real infrastructure failure: kill a Redis connection mid-request, inject network latency, or use Testcontainers to stop a container. The app MUST degrade gracefully (e.g., serve from DB when cache is down) | Only mock a module to throw — that's a unit test with extra steps |
+| Concurrency | Make concurrent requests to a real running app (or use concurrent DB transactions) to verify that race conditions are handled (e.g., duplicate short code prevention under concurrent inserts). Use `Promise.all` with real HTTP calls, not `Promise.resolve` | Generate codes in a loop and check uniqueness — that's a unit test |
+| Data migration | Run all migration files against a real empty database (Testcontainers or CI service) and verify the schema is correct (tables exist, columns have right types, indexes present, RLS policies active) | Only read SQL file content and check for keywords |
+| Infrastructure | Verify Dockerfile structure (multi-stage, non-root, HEALTHCHECK), docker-compose services, and Terraform files | — |
 
 Test data MUST use factories (e.g., `@faker-js/faker`), not hard-coded fixtures.
+
+Coverage threshold in vitest config MUST be set to 90% for lines, branches, functions, and statements — not 80%.
 
 #### 10.6: Implement CI/CD
 
