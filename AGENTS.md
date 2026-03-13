@@ -144,45 +144,133 @@ Generate a `CLAUDE.md` in the project root containing only:
 
 ### Step 10: Build and Verify
 
-After generating all documentation and config files, implement the project scaffolding and verify it works:
+After generating all documentation and config files, implement the full project and verify it works. This is not scaffolding — it is a complete, working codebase. Every endpoint, every middleware, every test type, and every config file referenced in the generated docs MUST exist and function.
 
-1. **Initialize the project** — Set up the monorepo/project structure as defined in `docs/architecture.md`:
-   - Initialize `package.json` (or equivalent) with all required dependencies and scripts
-   - Create the directory structure from the architecture doc
-   - Install dependencies and verify `pnpm install` (or equivalent) succeeds
+#### 10.1: Initialize Project
 
-2. **Implement Tier 1 foundations** — Build the minimum code required by the Tier 1 checklist (`docs/tier1-checklist.md`):
-   - Shared infrastructure: database client, cache client, config validation, error types, telemetry setup
-   - Auth middleware (JWT validation + API key validation)
-   - Authorization module (RBAC)
-   - Input validation setup (Zod or equivalent)
-   - HTTP security headers middleware
-   - Audit logging infrastructure
-   - Database migrations for all tables defined in `docs/database.md`
-   - RLS policies for multi-tenant isolation (if applicable)
+Set up the monorepo/project structure exactly as defined in `docs/architecture.md`:
 
-3. **Implement core features** — Build all features defined in the generated `AGENTS.md`, following the implementation order and parallelization guidelines defined there. Each feature MUST follow TDD:
-   - Write failing test first
-   - Implement the feature
-   - Verify test passes
+- Initialize `package.json` (or equivalent) with all required dependencies and scripts
+- Create the directory structure from the architecture doc — use vertical slice directories (e.g., `features/links/`), not flat `routes/` + `services/` directories
+- Install dependencies and verify `pnpm install` (or equivalent) succeeds
+- Every npm script referenced in CI workflows MUST exist in `package.json` (e.g., `test`, `test:coverage`, `build`, `lint`, `typecheck`)
 
-4. **Build verification** — Run the following and fix any failures:
-   - `pnpm install` (or equivalent) — dependencies resolve
-   - `pnpm build` (or equivalent) — TypeScript compiles with no errors
-   - `pnpm lint` — no lint errors
-   - `pnpm test` — all tests pass
-   - `pnpm test:coverage` — coverage ≥ 90%
+#### 10.2: Implement Tier 1 Foundations
 
-5. **Doctrine compliance check** — Verify the implementation against the generated docs:
-   - Architecture: dependency-cruiser (or equivalent) passes — no dependency rule violations
-   - Security: all HTTP security headers present, input validation on all routes, parameterized queries only
-   - Testing: all required test types exist (unit, integration, contract, property-based, architecture)
-   - API: all endpoints match the OpenAPI spec in `docs/api.md`
-   - Observability: structured logging, metrics, health check endpoints functional
+Build everything required by the Tier 1 checklist (`docs/tier1-checklist.md`). Every item on the checklist MUST have corresponding code:
 
-6. **Report** — Summarize what was built, any deviations from the docs, and any issues found during verification.
+**Security:**
+- Auth middleware: JWT validation (RS256) + API key validation (HMAC-SHA256)
+- Password hashing: bcrypt with cost factor ≥ 12 — NOT SHA-256, NOT plain hashing
+- RBAC middleware: `requireRole()` or equivalent that enforces role checks on protected routes
+- Input validation: Zod schemas at every route boundary
+- HTTP security headers: Helmet or equivalent with HSTS, CSP, X-Frame-Options, Referrer-Policy
+- Rate limiting: per-endpoint limits as defined in `docs/security.md`
+- SSRF protection: URL validation that blocks private IP ranges, localhost, cloud metadata endpoints
+- Audit logging: a working service that writes to the `audit_log` table on every state-changing operation
+- Account lockout: lock accounts after N consecutive failed login attempts
+- Refresh token rotation: issue new refresh token on every refresh, invalidate the old one, detect reuse (family invalidation)
 
-This step ensures the generated documentation is not just correct on paper but produces a working, compliant codebase.
+**Data Privacy:**
+- Multi-tenant RLS: `SET LOCAL app.current_tenant_id` MUST be called at the start of every request — not just WHERE clause filtering
+- GDPR erasure endpoint: implement the full erasure pipeline (hard delete PII, anonymize audit logs)
+- GDPR export endpoint: return all user data as JSON/CSV
+- IP anonymization: hash IPs before storage, automated cleanup job for aged data
+- Audit log pseudonymization: emails stored as `sha256(email + AUDIT_SALT)`, never plaintext
+
+**Observability:**
+- OpenTelemetry: install and configure `@opentelemetry/sdk-node` with auto-instrumentation for HTTP, PostgreSQL, Redis
+- Structured logging: pino with `traceId`, `spanId`, `tenantId`, `service` in every log entry
+- Health checks: `/healthz` (liveness) and `/readyz` (readiness with DB+Redis checks)
+- `traceId` in error responses: every RFC 9457 Problem Details response MUST include a trace/request ID
+
+#### 10.3: Implement All Features
+
+Build every endpoint and feature defined in the generated `AGENTS.md`. Do not skip phases or endpoints:
+
+- Every endpoint listed in the generated `AGENTS.md` MUST be implemented
+- Every route MUST have authentication (`authenticate` preHandler)
+- Every state-changing route MUST call the audit logging service
+- Every route that accepts user input MUST validate with Zod at the boundary
+- Every database query MUST use parameterized queries
+- Cache invalidation MUST occur when data changes (if caching is used)
+
+Follow TDD for each feature: write failing test → implement → verify pass.
+
+#### 10.4: Implement All Test Types
+
+Every test type defined in `docs/testing.md` MUST have at least one working test:
+
+| Test Type | Minimum Requirement |
+|---|---|
+| Unit | Tests for all services and middleware |
+| Integration | Tests using real DB/Redis (Testcontainers or equivalent), not mocks |
+| E2E | At least one full request flow (create link → redirect → verify analytics) |
+| Contract | OpenAPI spec validation against actual routes |
+| Property-based | At least one test using fast-check or equivalent for core domain logic |
+| Mutation | Stryker config file with thresholds (runs in deploy pipeline, not required to pass locally) |
+| Fuzz | At least one fuzz target for input parsing |
+| Architecture | dependency-cruiser config (`.dependency-cruiser.cjs`) with rules enforcing the dependency direction |
+| Smoke | Post-deploy smoke test script that hits health + core endpoints |
+| Chaos | At least one fault injection test (e.g., Redis down → circuit breaker activates) |
+| Concurrency | At least one test for concurrent writes (e.g., duplicate short code prevention) |
+| Data migration | At least one test that applies migrations and verifies schema |
+| Infrastructure | Container image test (correct base, non-root user, health check) |
+
+Test data MUST use factories (e.g., `@faker-js/faker`), not hard-coded fixtures.
+
+#### 10.5: Implement CI/CD
+
+- Commit pipeline workflow MUST exist and be runnable (all referenced scripts and config files exist)
+- Deploy pipeline workflow MUST exist with staging deploy, smoke tests, approval gate, production deploy
+- All GitHub Actions MUST be pinned to commit SHA, not tags (`@v4` is not acceptable)
+- All config files referenced in CI MUST exist (`.dependency-cruiser.cjs`, vitest configs, etc.)
+
+#### 10.6: Implement Infrastructure
+
+- Dockerfile: multi-stage build, non-root user, health check
+- docker-compose.yml: all backing services (DB, cache) with health checks
+- IaC stubs: at minimum, create the Terraform module directory structure with placeholder `main.tf` files that document the required resources. Full IaC implementation is optional but the structure MUST match `docs/architecture.md`.
+
+#### 10.7: Build Verification
+
+Run ALL of the following and fix any failures before reporting:
+
+```bash
+pnpm install          # dependencies resolve
+pnpm build            # compiles with no errors
+pnpm lint             # no lint errors
+pnpm test             # all tests pass
+pnpm test:coverage    # coverage ≥ 90%
+```
+
+If any command fails, fix the code and re-run. Do NOT report success with failing tests.
+
+#### 10.8: Doctrine Compliance Verification
+
+Walk through the generated `docs/tier1-checklist.md` item by item. For each item, verify the corresponding code exists. Specifically check:
+
+- [ ] Every endpoint in the generated `AGENTS.md` has a route handler
+- [ ] Every route has Zod validation at the boundary
+- [ ] Every state-changing operation writes an audit log entry
+- [ ] RLS is activated per-request (not just defined in SQL)
+- [ ] RBAC is enforced (not just role stored — role checked before access)
+- [ ] Passwords use bcrypt, not SHA-256
+- [ ] OpenTelemetry is initialized and tracing works
+- [ ] CI workflows reference scripts that exist in `package.json`
+- [ ] Architecture test config exists and rules match `docs/architecture.md`
+- [ ] All test types from `docs/testing.md` have at least one test file
+
+If any check fails, fix it before proceeding.
+
+#### 10.9: Report
+
+Summarize:
+- Total files generated (source, tests, config, docs)
+- All endpoints implemented with their HTTP methods
+- Test results (total tests, pass/fail, coverage percentage)
+- Any deviations from the generated docs with justification
+- Any items from the tier1-checklist that could not be implemented with justification
 
 ## Doctrine Files
 
