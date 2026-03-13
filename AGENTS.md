@@ -197,7 +197,16 @@ Build every endpoint and feature defined in the generated `AGENTS.md`. Do not sk
 
 Follow TDD for each feature: write failing test → implement → verify pass.
 
-#### 10.4: Implement All Test Types
+#### 10.4: Generate OpenAPI Spec
+
+Generate an `openapi.yaml` (or `openapi.json`) in the project root that documents all implemented endpoints. This spec MUST:
+
+- Describe every endpoint from the generated `AGENTS.md`
+- Include request/response schemas matching the Zod validation schemas
+- Be valid OpenAPI 3.1 (validate with a linter or parser)
+- Be used by contract tests to verify routes match the spec
+
+#### 10.5: Implement All Test Types
 
 Every test type defined in `docs/testing.md` MUST have at least one working test:
 
@@ -219,20 +228,20 @@ Every test type defined in `docs/testing.md` MUST have at least one working test
 
 Test data MUST use factories (e.g., `@faker-js/faker`), not hard-coded fixtures.
 
-#### 10.5: Implement CI/CD
+#### 10.6: Implement CI/CD
 
 - Commit pipeline workflow MUST exist and be runnable (all referenced scripts and config files exist)
 - Deploy pipeline workflow MUST exist with staging deploy, smoke tests, approval gate, production deploy
 - All GitHub Actions MUST be pinned to commit SHA, not tags (`@v4` is not acceptable)
 - All config files referenced in CI MUST exist (`.dependency-cruiser.cjs`, vitest configs, etc.)
 
-#### 10.6: Implement Infrastructure
+#### 10.7: Implement Infrastructure
 
 - Dockerfile: multi-stage build, non-root user, health check
 - docker-compose.yml: all backing services (DB, cache) with health checks
 - IaC stubs: at minimum, create the Terraform module directory structure with placeholder `main.tf` files that document the required resources. Full IaC implementation is optional but the structure MUST match `docs/architecture.md`.
 
-#### 10.7: Build Verification
+#### 10.8: Build Verification
 
 Run ALL of the following and fix any failures before reporting:
 
@@ -246,7 +255,13 @@ pnpm test:coverage    # coverage ≥ 90%
 
 If any command fails, fix the code and re-run. Do NOT report success with failing tests.
 
-#### 10.8: Doctrine Compliance Verification
+Common pitfalls to verify before running:
+- ESLint flat config (`eslint.config.js` / `eslint.config.mjs`) does NOT support `--ext` flag — use `eslint .` or `eslint src/ tests/` instead
+- Every `pnpm test:*` script referenced in CI workflows MUST exist in `package.json`
+- Vitest config files referenced by `--config` flags MUST exist at the specified paths
+- If using a monorepo, shared packages MUST be built before dependent packages can compile
+
+#### 10.9: Doctrine Compliance Verification
 
 Walk through the generated `docs/tier1-checklist.md` item by item. For each item, verify the corresponding code exists. Specifically check:
 
@@ -260,10 +275,13 @@ Walk through the generated `docs/tier1-checklist.md` item by item. For each item
 - [ ] CI workflows reference scripts that exist in `package.json`
 - [ ] Architecture test config exists and rules match `docs/architecture.md`
 - [ ] All test types from `docs/testing.md` have at least one test file
+- [ ] OpenAPI spec exists and matches implemented routes
+- [ ] Terraform directory structure exists (at minimum placeholder `main.tf` files)
+- [ ] `pnpm lint` passes with no errors (verify the lint script actually works)
 
 If any check fails, fix it before proceeding.
 
-#### 10.9: Report
+#### 10.10: Report
 
 Summarize:
 - Total files generated (source, tests, config, docs)
