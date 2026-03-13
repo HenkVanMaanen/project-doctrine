@@ -18,8 +18,9 @@ The LLM will:
 2. Read all doctrine files
 3. Fetch the latest versions of referenced standards
 4. Generate project-specific docs in `docs/`
-5. Generate starter config files
+5. Generate starter config files and LICENSE
 6. Generate an `AGENTS.md` and `CLAUDE.md` for implementation
+7. Build the project, implement all features, and verify doctrine compliance
 
 ## Doctrine Files
 
@@ -82,6 +83,7 @@ project-root/
 ├── Dockerfile
 ├── docker-compose.yml
 ├── CHANGELOG.md
+├── LICENSE
 ├── AGENTS.md                  # implementation instructions for agents
 └── CLAUDE.md
 ```

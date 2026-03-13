@@ -104,6 +104,7 @@ Alongside docs, generate applicable config files in the project root. This step 
 - PR template (`.github/pull_request_template.md` or equivalent)
 - `.env.example`
 - `CHANGELOG.md` (initial)
+- `LICENSE` (MIT — required for all projects)
 
 Only generate files applicable to the chosen stack and project type.
 
@@ -140,6 +141,48 @@ Generate a `CLAUDE.md` in the project root containing only:
 ```
 @AGENTS.md
 ```
+
+### Step 10: Build and Verify
+
+After generating all documentation and config files, implement the project scaffolding and verify it works:
+
+1. **Initialize the project** — Set up the monorepo/project structure as defined in `docs/architecture.md`:
+   - Initialize `package.json` (or equivalent) with all required dependencies and scripts
+   - Create the directory structure from the architecture doc
+   - Install dependencies and verify `pnpm install` (or equivalent) succeeds
+
+2. **Implement Tier 1 foundations** — Build the minimum code required by the Tier 1 checklist (`docs/tier1-checklist.md`):
+   - Shared infrastructure: database client, cache client, config validation, error types, telemetry setup
+   - Auth middleware (JWT validation + API key validation)
+   - Authorization module (RBAC)
+   - Input validation setup (Zod or equivalent)
+   - HTTP security headers middleware
+   - Audit logging infrastructure
+   - Database migrations for all tables defined in `docs/database.md`
+   - RLS policies for multi-tenant isolation (if applicable)
+
+3. **Implement core features** — Build all features defined in the generated `AGENTS.md`, following the implementation order and parallelization guidelines defined there. Each feature MUST follow TDD:
+   - Write failing test first
+   - Implement the feature
+   - Verify test passes
+
+4. **Build verification** — Run the following and fix any failures:
+   - `pnpm install` (or equivalent) — dependencies resolve
+   - `pnpm build` (or equivalent) — TypeScript compiles with no errors
+   - `pnpm lint` — no lint errors
+   - `pnpm test` — all tests pass
+   - `pnpm test:coverage` — coverage ≥ 90%
+
+5. **Doctrine compliance check** — Verify the implementation against the generated docs:
+   - Architecture: dependency-cruiser (or equivalent) passes — no dependency rule violations
+   - Security: all HTTP security headers present, input validation on all routes, parameterized queries only
+   - Testing: all required test types exist (unit, integration, contract, property-based, architecture)
+   - API: all endpoints match the OpenAPI spec in `docs/api.md`
+   - Observability: structured logging, metrics, health check endpoints functional
+
+6. **Report** — Summarize what was built, any deviations from the docs, and any issues found during verification.
+
+This step ensures the generated documentation is not just correct on paper but produces a working, compliant codebase.
 
 ## Doctrine Files
 
