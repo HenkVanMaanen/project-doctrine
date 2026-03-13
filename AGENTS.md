@@ -214,12 +214,20 @@ Every test type defined in `docs/testing.md` MUST have at least one working test
 
 **Do not fake test types.** A unit test relabeled as "concurrency" is not a concurrency test. A test that reads SQL file text is not a migration test. A test that validates a YAML schema is not a contract test. Each test type MUST use the technique appropriate to that type.
 
+**Do not stub test bodies.** Every test MUST contain real assertions that verify behavior. The following patterns are NOT acceptable and MUST NOT appear in any test file:
+- `expect(true).toBe(true)` or any tautological assertion
+- `describe.skip(...)` or `describe.skipIf(...)` or `it.skip(...)` — tests MUST NOT be conditionally skipped based on environment variables
+- Empty test bodies or `// TODO` placeholders
+- Tests that only log output without asserting anything
+
+Tests that require infrastructure (DB, Redis) MUST use Testcontainers to spin up ephemeral containers. Do NOT gate tests behind environment variables like `INTEGRATION_TESTS=1` — if the test exists, it MUST run as part of `pnpm test` or a named test script (e.g., `pnpm test:integration`). Use Testcontainers so tests are self-contained and run anywhere without external services.
+
 | Test Type | What It MUST Do | What It MUST NOT Do |
 |---|---|---|
 | Unit | Test services and middleware with mocked dependencies | — |
-| Integration | Run against real DB/Redis (Testcontainers, docker-compose services, or CI service containers). Cover at minimum: auth, links CRUD, and GDPR flows | Use `vi.mock()` for DB/Redis — that's a unit test |
-| E2E | Full request flow through the running app with real DB/Redis | Mock any infrastructure |
-| Contract | Load the OpenAPI spec, then make real HTTP requests to the running app and validate that responses match the spec schemas (use a library like `openapi-backend`, `swagger-jsdoc` validation, or manually validate response shapes against spec) | Only validate the YAML/JSON structure of the spec file itself — that tests the spec, not the implementation |
+| Integration | Use Testcontainers to start PostgreSQL and Redis, run migrations, then test auth flows, links CRUD, and GDPR erasure/export against the real database. Every test MUST make real SQL queries and assert on real query results | Use `vi.mock()` for DB/Redis, or use `describe.skipIf()` to skip when no DB is available — that's a stub, not an integration test |
+| E2E | Use Testcontainers for DB/Redis, boot the Fastify app with `app.inject()`, then execute a full flow: register → login → create link → redirect → verify analytics. Every step MUST assert on response status and body | Mock any infrastructure, or skip the test conditionally |
+| Contract | Use Testcontainers for DB/Redis, boot the Fastify app, load the OpenAPI spec, make real HTTP requests via `app.inject()`, and validate that response status codes, headers, and body shapes match the spec. Use a library like `openapi-response-validator` or manually validate against the spec's JSON Schema | Only validate the YAML/JSON structure of the spec file itself — that tests the spec, not the implementation |
 | Property-based | Use fast-check or equivalent to test domain invariants with random inputs | Use hand-picked inputs — that's a unit test |
 | Mutation | Install Stryker, configure it, and run `pnpm test:mutation` to verify it executes successfully. The mutation score threshold MUST be defined. Stryker MUST actually mutate source files and run tests against them | Only create a config file without verifying Stryker runs |
 | Fuzz | Use fast-check `fc.anything()` or equivalent to throw random/malformed input at parsers and validators | Use a small set of hand-crafted edge cases — that's a unit test |
@@ -227,7 +235,7 @@ Every test type defined in `docs/testing.md` MUST have at least one working test
 | Smoke | Boot the real app (or hit a deployed URL) and verify critical paths respond correctly | — |
 | Chaos | Simulate real infrastructure failure: kill a Redis connection mid-request, inject network latency, or use Testcontainers to stop a container. The app MUST degrade gracefully (e.g., serve from DB when cache is down) | Only mock a module to throw — that's a unit test with extra steps |
 | Concurrency | Make concurrent requests to a real running app (or use concurrent DB transactions) to verify that race conditions are handled (e.g., duplicate short code prevention under concurrent inserts). Use `Promise.all` with real HTTP calls, not `Promise.resolve` | Generate codes in a loop and check uniqueness — that's a unit test |
-| Data migration | Run all migration files against a real empty database (Testcontainers or CI service) and verify the schema is correct (tables exist, columns have right types, indexes present, RLS policies active) | Only read SQL file content and check for keywords |
+| Data migration | Use Testcontainers to start an empty PostgreSQL instance, run all migration files, then query `information_schema` and `pg_policies` to verify tables exist, columns have correct types, indexes are present, and RLS policies are active. Every assertion MUST query the real database | Only read SQL file content and check for keywords, or skip when no DB is available |
 | Infrastructure | Verify Dockerfile structure (multi-stage, non-root, HEALTHCHECK), docker-compose services, and Terraform files | — |
 
 Test data MUST use factories (e.g., `@faker-js/faker`), not hard-coded fixtures.
