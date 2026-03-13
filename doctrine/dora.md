@@ -34,7 +34,7 @@ All four DORA metrics MUST be measured and tracked:
 ### Integration with Doctrine
 
 - **Deployment Frequency** is driven by: trunk-based development (`git-workflow.md`), feature flags (`ci-cd.md`), zero-downtime deployments (`ci-cd.md`).
-- **Lead Time for Changes** is driven by: 10-minute pipeline budget (`ci-cd.md`), short-lived branches (`git-workflow.md`), automated testing (`testing.md`).
+- **Lead Time for Changes** is driven by: commit pipeline time budget (`ci-cd.md`), short-lived branches (`git-workflow.md`), automated testing (`testing.md`).
 - **Change Failure Rate** is driven by: test coverage and mutation testing (`testing.md`), security scanning (`security.md`), contract testing (`testing.md`).
 - **Mean Time to Recovery** is driven by: automated rollback (`ci-cd.md`), health checks (`infrastructure.md`), alerting (`telemetry.md`), recovery runbooks (`disaster-recovery.md`).
 

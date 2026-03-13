@@ -65,6 +65,7 @@ If the project is multi-tenant:
 - `database.md` — migrations, schema management
 - `disaster-recovery.md` — backup and data recovery
 - `secrets.md` — restricted data (credentials, keys)
+- `telemetry.md` — PII exclusion from logs
 
 ## Output Requirements
 

@@ -32,6 +32,8 @@ Applies to: all
 - `security.md` — authentication, audit logging
 - `12-factor.md` — config management (env vars vs. secret manager)
 - `ci-cd.md` — pipeline secret management
+- `infrastructure.md` — secret manager in cloud infrastructure
+- `disaster-recovery.md` — secret backup and recovery
 
 ## Output Requirements
 

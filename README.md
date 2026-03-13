@@ -34,7 +34,7 @@ The LLM will:
 | [api-design.md](doctrine/api-design.md) | REST/GraphQL, OpenAPI, rate limiting, deprecation | API, webapp |
 | [cli.md](doctrine/cli.md) | Exit codes, signals, POSIX conventions | CLI |
 | [data-privacy.md](doctrine/data-privacy.md) | GDPR, data classification, retention | all |
-| [ci-cd.md](doctrine/ci-cd.md) | 19-stage pipeline, 10-min budget, feature flags | all |
+| [ci-cd.md](doctrine/ci-cd.md) | Dual pipeline (commit + deploy), parallel stages, feature flags | all |
 | [infrastructure.md](doctrine/infrastructure.md) | Docker, IaC, health checks, container registry | all |
 | [resilience.md](doctrine/resilience.md) | Circuit breakers, retries, graceful degradation | all |
 | [documentation.md](doctrine/documentation.md) | ADRs, changelog, Conventional Commits, Mermaid | all |
@@ -48,10 +48,49 @@ The LLM will:
 | [disaster-recovery.md](doctrine/disaster-recovery.md) | Backups, RTO/RPO, quarterly drills | all |
 | [dora.md](doctrine/dora.md) | Deployment frequency, lead time, MTTR, CFR | all |
 | [code-style.md](doctrine/code-style.md) | Formatting, linting, EditorConfig | all |
+| [finops.md](doctrine/finops.md) | Cloud cost management, tagging, budgets | all |
+| [standards-versions.md](doctrine/standards-versions.md) | Baseline versions of all referenced standards | reference |
+
+## Example Output
+
+When applied to a project, this doctrine generates:
+
+```
+project-root/
+├── docs/
+│   ├── architecture.md
+│   ├── security.md
+│   ├── accessibility.md      # webapp only
+│   ├── observability.md
+│   ├── testing.md
+│   ├── api.md                 # API/webapp only
+│   ├── data-privacy.md
+│   ├── ci-cd.md
+│   ├── resilience.md
+│   ├── i18n.md                # webapp only
+│   ├── performance.md
+│   ├── database.md            # if applicable
+│   ├── versioning.md
+│   ├── dependencies.md
+│   ├── disaster-recovery.md
+│   ├── documentation.md
+│   ├── finops.md
+│   └── tier1-checklist.md
+├── .editorconfig
+├── .gitignore
+├── .env.example
+├── Dockerfile
+├── docker-compose.yml
+├── CHANGELOG.md
+├── AGENTS.md                  # implementation instructions for agents
+└── CLAUDE.md
+```
+
+Each generated doc is concise, actionable, stack-specific, and contains measurable acceptance criteria.
 
 ## Standards
 
-This doctrine references IETF RFCs, OWASP, WCAG, OpenTelemetry, and other stable standards. LLMs are instructed to fetch the latest versions at generation time.
+This doctrine references IETF RFCs, OWASP, WCAG, OpenTelemetry, and other stable standards. LLMs are instructed to fetch the latest versions at generation time. See [standards-versions.md](doctrine/standards-versions.md) for the baseline reference list.
 
 ## License
 

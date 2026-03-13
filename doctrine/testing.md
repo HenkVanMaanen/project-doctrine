@@ -94,7 +94,7 @@ All of the following MUST be implemented where applicable:
 
 ## See Also
 
-- `ci-cd.md` — test stages in pipeline, 10-minute budget
+- `ci-cd.md` — test stages in commit and deploy pipelines
 - `performance.md` — load testing
 - `security.md` — SAST/DAST scanning
 - `resilience.md` — patterns validated by chaos tests

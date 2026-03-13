@@ -64,6 +64,7 @@ The following endpoints MUST be implemented:
 - `disaster-recovery.md` — backup infrastructure, failover
 - `telemetry.md` — health check integration with observability
 - `testing.md` — infrastructure tests validate IaC
+- `finops.md` — cost visibility, tagging, budget alerts
 
 ## Output Requirements
 

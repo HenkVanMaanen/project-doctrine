@@ -11,6 +11,14 @@ Applies to: all
 - Backups MUST be stored in a separate region/location from primary data.
 - Backup encryption MUST be enabled.
 
+### Backup Integrity
+
+- Backups MUST be verified with checksum validation after creation.
+- Backup integrity checks MUST run automatically on a schedule (at minimum daily).
+- Integrity verification MUST include: checksum comparison, file completeness, and sample data readability.
+- Corrupted backups MUST trigger immediate alerts and re-backup.
+- Backup chain integrity (for incremental backups) MUST be verified end-to-end.
+
 ### Automated Recovery Testing
 
 - Automated backup restoration tests MUST run on a schedule (at minimum weekly).
@@ -57,7 +65,7 @@ The generated disaster recovery doc MUST:
 
 - Define RTO and RPO per service/data store
 - Include recovery runbooks
-- Define backup strategy and schedule
+- Define backup strategy, schedule, and integrity verification process
 - Define automated recovery test configuration and schedule
 - Define quarterly drill process and documentation template
 - Define incident response process with escalation paths

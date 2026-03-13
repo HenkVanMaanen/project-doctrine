@@ -6,40 +6,63 @@ This repository is a strict doctrine. You are an LLM reading this to generate pr
 
 This doctrine uses [RFC 2119](https://www.rfc-editor.org/rfc/rfc2119) keywords (MUST, SHALL, SHOULD, MAY, MUST NOT).
 
-When referencing standards, fetch the latest version at generation time. If a referenced RFC has been superseded, use the superseding RFC instead. The URLs in doctrine files are stable fallbacks.
+When referencing standards, fetch the latest version at generation time. If a referenced RFC has been superseded, use the superseding RFC instead. The URLs in doctrine files are stable fallbacks. See `doctrine/standards-versions.md` for known-good baseline versions.
+
+## Agent-First Implementation
+
+The generated project documentation is designed for implementation by AI agents (LLMs), not humans. This means:
+
+- All requirements are achievable — agents can handle the full scope without scaling concerns.
+- Agents MAY execute tasks in parallel using subagents or agent teams.
+- Steps in this workflow that are independent SHOULD be parallelized across agents.
+- The generated project `AGENTS.md` MUST instruct implementing agents to work in parallel where possible.
+- No requirement should be softened due to perceived complexity — agents can implement comprehensive testing, full accessibility compliance, and complete observability.
 
 ## Workflow
 
 ### Step 1: Discovery
 
-Ask the user the following before proceeding:
+Ask the user the following before proceeding.
+
+#### Required
+
+These MUST be answered before generation can proceed:
 
 - **Project type**: webapp | API | CLI
 - **Tech stack**: language, framework, database
 - **Target users**: audience, expected scale (concurrent users, peak requests/sec)
-- **Authentication**: required? existing provider?
 - **Data sensitivity**: what PII or sensitive data will be handled?
-- **Multi-tenant or single-tenant?**
-- **Open source or proprietary?**
 - **Infrastructure**: cloud provider, CI/CD platform, container orchestration
-- **Deployment targets**: regions, compliance jurisdictions
-- **Regulatory requirements beyond GDPR?** (e.g., PCI-DSS, HIPAA)
-- **External integrations**: third-party APIs, services
-- **Monorepo or polyrepo**: single repo or multiple?
-- **Offline/PWA requirements?**
-- **Expected traffic patterns**: sustained load, peak spikes, seasonal variation
+
+#### Optional (defaults applied if not answered)
+
+- **Authentication**: required? existing provider? (default: required, no existing provider)
+- **Multi-tenant or single-tenant?** (default: single-tenant)
+- **Open source or proprietary?** (default: proprietary)
+- **Deployment targets**: regions, compliance jurisdictions (default: single region, GDPR)
+- **Regulatory requirements beyond GDPR?** (e.g., PCI-DSS, HIPAA) (default: GDPR only)
+- **External integrations**: third-party APIs, services (default: none)
+- **Monorepo or polyrepo**: single repo or multiple? (default: monorepo)
+- **Offline/PWA requirements?** (default: no)
+- **Expected traffic patterns**: sustained load, peak spikes, seasonal variation (default: even load, 2x peak)
 
 ### Step 2: Read Doctrine
 
 Read all files in `doctrine/`. Apply only files matching the project type (see table below).
 
+This step MAY run in parallel with Step 3.
+
 ### Step 3: Fetch Live Standards
 
 For each referenced standard (OWASP Top 10, WCAG 2.2, OpenAPI, etc.), fetch the latest version to ensure current guidance. If an RFC has been superseded, use the successor.
 
+Use `doctrine/standards-versions.md` as the baseline. If fetching fails, fall back to the versions listed there.
+
+This step MAY run in parallel with Step 2.
+
 ### Step 4: Generate Project Documentation
 
-Generate the following in the project's `docs/` directory:
+Generate the following in the project's `docs/` directory. Independent docs MAY be generated in parallel by multiple agents:
 
 | Output File | Source Doctrine Files |
 |---|---|
@@ -59,6 +82,7 @@ Generate the following in the project's `docs/` directory:
 | `docs/dependencies.md` | dependencies |
 | `docs/disaster-recovery.md` | disaster-recovery |
 | `docs/documentation.md` | documentation |
+| `docs/finops.md` | finops |
 
 Each generated doc MUST:
 - Be concise and actionable
@@ -69,7 +93,7 @@ Each generated doc MUST:
 
 ### Step 5: Generate Starter Config Files
 
-Alongside docs, generate applicable config files in the project root:
+Alongside docs, generate applicable config files in the project root. This step MAY run in parallel with Step 4:
 
 - `.editorconfig`
 - `.gitignore`
@@ -95,13 +119,19 @@ Review all generated docs for internal consistency. Verify:
 - All cross-references between docs are valid
 - Tooling choices are consistent across docs (same test framework, same CI platform, etc.)
 - Security headers don't conflict with CDN or caching config
+- CI pipeline time budgets are achievable with the defined parallelization strategy
 - All acceptance criteria are measurable and non-overlapping
 
 If inconsistencies are found, resolve them and document the rationale.
 
 ### Step 8: Generate Project AGENTS.md
 
-Generate an `AGENTS.md` in the project root that instructs an LLM to implement the project following all generated docs in `docs/`. This file MUST reference each generated doc.
+Generate an `AGENTS.md` in the project root that instructs agents to implement the project following all generated docs in `docs/`. This file MUST:
+
+- Reference each generated doc
+- Define which tasks can be parallelized across agents
+- Instruct agents to work in parallel where tasks are independent
+- Define the implementation order (Tier 1 requirements first)
 
 ### Step 9: Generate Project CLAUDE.md
 
@@ -138,6 +168,7 @@ Generate a `CLAUDE.md` in the project root containing only:
 | `doctrine/dora.md` | all |
 | `doctrine/cli.md` | CLI |
 | `doctrine/code-style.md` | all |
+| `doctrine/finops.md` | all |
 
 ## Priority Tiers
 

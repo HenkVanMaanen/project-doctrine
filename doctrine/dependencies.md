@@ -37,6 +37,7 @@ Applies to: all
 
 - `security.md` — vulnerability scanning, SAST
 - `ci-cd.md` — security scan pipeline stage
+- `infrastructure.md` — container image dependency scanning
 
 ## Output Requirements
 

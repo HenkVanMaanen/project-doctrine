@@ -6,33 +6,54 @@ Applies to: all
 
 ### Pipeline Time Budget
 
-- The full CI/CD pipeline MUST complete in under 10 minutes.
-- Pipeline stages MUST be parallelized where possible to meet this budget.
-- If 10 minutes cannot be achieved, the bottleneck MUST be documented in an ADR with a remediation plan.
+- The **commit pipeline** (pre-merge) MUST complete in under 10 minutes.
+- The **deploy pipeline** (post-merge) MUST complete in under 20 minutes.
+- Pipeline stages MUST be maximally parallelized — independent stages MUST run concurrently.
+- If time budgets cannot be achieved, the bottleneck MUST be documented in an ADR with a remediation plan.
 
 ### Pipeline Stages
 
-CI/CD pipelines MUST include these stages in order (parallelize where independent):
+CI/CD pipelines MUST include the following stages, organized into two pipelines. Independent stages within each pipeline MUST run in parallel.
 
+#### Commit Pipeline (pre-merge, < 10 minutes)
+
+Runs on every pull request. Gates merge to main.
+
+**Track A — Code Quality** (parallel):
 1. **Lint & Format** — code style enforcement (see `code-style.md`)
 2. **Build** — compile/bundle
-3. **Architecture Tests** — structural rule enforcement
-4. **Unit Tests** — with coverage check (>= 90%)
-5. **Integration Tests** — with testcontainers or equivalent
-6. **Data Migration Tests** — migration correctness and integrity
-7. **Concurrency Tests** — if shared mutable state exists
-8. **Security Scan** — dependency vulnerabilities + SAST
-9. **Mutation Tests** — with kill rate check (>= 90%)
-10. **Fuzz Tests** — with 1-minute time limit
-11. **Contract Tests** — if applicable
-12. **Infrastructure Tests** — IaC validation
+3. **Security Scan** — dependency vulnerabilities + SAST
+
+**Track B — Testing** (after build, parallel):
+4. **Architecture Tests** — structural rule enforcement
+5. **Unit Tests** — with coverage check (>= 90%)
+6. **Integration Tests** — with testcontainers or equivalent
+7. **Contract Tests** — if applicable
+8. **Property-Based Tests** — invariant verification
+9. **Data Migration Tests** — migration correctness and integrity
+10. **Concurrency Tests** — if shared mutable state exists
+
+#### Deploy Pipeline (post-merge, < 20 minutes)
+
+Runs after merge to main. Gates production deployment.
+
+**Track C — Deep Testing** (parallel):
+11. **Mutation Tests** — with kill rate check (>= 90%)
+12. **Fuzz Tests** — with configurable time limit
+
+**Track D — Staging** (parallel with Track C):
 13. **Build Container Image** — Docker
-14. **Deploy to Staging** — automated
-15. **E2E Tests** — against staging
-16. **Chaos Tests** — fault injection against staging
-17. **DAST** — against staging
-18. **Deploy to Production** — with approval gate
-19. **Smoke Tests** — post-deployment critical path verification (< 1 min, triggers rollback on failure)
+14. **Infrastructure Tests** — IaC validation
+15. **Deploy to Staging** — automated
+
+**Track E — Staging Validation** (after staging deploy, parallel):
+16. **E2E Tests** — against staging
+17. **Chaos Tests** — fault injection against staging
+18. **DAST** — against staging
+
+**Track F — Production**:
+19. **Deploy to Production** — with approval gate
+20. **Smoke Tests** — post-deployment critical path verification (< 1 min, triggers rollback on failure)
 
 ### Deployment Strategy
 
@@ -65,13 +86,14 @@ CI/CD pipelines MUST include these stages in order (parallelize where independen
 - `security.md` — security scanning stages
 - `infrastructure.md` — Docker image building
 - `dora.md` — deployment frequency, lead time for changes
+- `finops.md` — CI/CD infrastructure costs
 
 ## Output Requirements
 
 The generated CI/CD doc MUST:
 
-- Define the complete pipeline with all stages as a Mermaid flowchart
-- Demonstrate how stages are parallelized to meet the 10-minute budget
+- Define both pipelines (commit and deploy) with all stages as Mermaid flowcharts
+- Demonstrate how stages are parallelized within each pipeline to meet time budgets
 - Specify the deployment strategy with rollback procedure
 - Define feature flag tooling and usage policy
 - Include environment promotion flow

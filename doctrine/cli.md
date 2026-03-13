@@ -72,6 +72,7 @@ Applies to: CLI
 - `telemetry.md` — structured logging for CLI operations
 - `testing.md` — CLI integration tests
 - `versioning.md` — `--version` flag output
+- `resilience.md` — graceful shutdown, signal handling patterns
 
 ## Output Requirements
 
