@@ -201,7 +201,7 @@ Follow TDD for each feature: write failing test → implement → verify pass.
 
 #### 10.4: Generate OpenAPI Spec
 
-Generate an `openapi.yaml` (or `openapi.json`) in the project root that documents all implemented endpoints. This spec MUST:
+Generate a **committed** `openapi.yaml` (or `openapi.json`) in the project root that documents all implemented endpoints. Even if the framework can serve the spec dynamically (e.g., SpringDoc, FastAPI `/docs`), a static file MUST be committed to the repository so contract tests can load it without booting the app's spec endpoint. This spec MUST:
 
 - Describe every endpoint from the generated `AGENTS.md`
 - Include request/response schemas matching the validation schemas used in the code
@@ -229,9 +229,9 @@ Tests that require infrastructure (DB, Redis) MUST use Testcontainers (available
 | Unit | Test services and middleware with mocked dependencies | — |
 | Integration | Use Testcontainers to start PostgreSQL and Redis, run migrations, then test auth flows, CRUD operations, and GDPR erasure/export against the real database. Every test MUST make real SQL queries and assert on real query results | Mock the database, or skip when no DB is available — that's a stub, not an integration test |
 | E2E | Use Testcontainers for DB/Redis, boot the app, then execute a full flow: register → login → create resource → verify. Every step MUST assert on response status and body | Mock any infrastructure, or skip the test conditionally |
-| Contract | Use Testcontainers for DB/Redis, boot the app, load the OpenAPI spec, make real HTTP requests, and validate that response status codes, headers, and body shapes match the spec. Use a library like `openapi-response-validator` or manually validate against the spec's JSON Schema | Only validate the YAML/JSON structure of the spec file itself — that tests the spec, not the implementation |
+| Contract | Use Testcontainers for DB/Redis, boot the app, load the OpenAPI spec, make real HTTP requests to live endpoints, and validate that response status codes, headers, and body shapes match the spec. The test MUST: (1) start the real application, (2) make actual HTTP requests, (3) compare responses against the OpenAPI schema definitions. Use a library like `openapi-response-validator` or manually validate response JSON against the spec's JSON Schema | Only validate the YAML/JSON structure of the spec file itself — that tests the spec, not the implementation. Do NOT just assert the file contains certain strings or check that endpoints return non-404 |
 | Property-based | Use a property-based testing library (fast-check, proptest, FsCheck, jqwik, gopter) to test domain invariants with random inputs | Use hand-picked inputs — that's a unit test |
-| Mutation | Configure and run a mutation testing tool (Stryker, cargo-mutants, go-mutesting, Stryker.NET, PITest). The mutation score threshold MUST be defined | Only create a config file without verifying the tool runs |
+| Mutation | Configure and run a mutation testing tool (Stryker, cargo-mutants, go-mutesting, Stryker.NET, PITest). The test MUST either: (a) invoke the mutation tool programmatically or via shell command and assert on the exit code or score, OR (b) create a dedicated test/script that the CI pipeline runs. A config file alone is NOT sufficient — the tool MUST be invoked and verified to produce output. The mutation score threshold MUST be defined. Do NOT write manual "mutant" functions — use the real mutation tool | Only create a config file without verifying the tool runs. Do NOT write tests that merely assert a config file exists or is valid JSON/YAML — that is not mutation testing |
 | Fuzz | Use the property-based testing library with arbitrary/random input generation to throw malformed data at parsers and validators | Use a small set of hand-crafted edge cases — that's a unit test |
 | Architecture | Verify module dependency rules are not violated — either via a tool (dependency-cruiser, go-arch-lint, ArchUnit, etc.) or by scanning imports in source files. The test MUST fail if architectural boundaries are crossed | Silently pass if the tool is unavailable |
 | Smoke | Boot the real app (or hit a deployed URL) and verify critical paths respond correctly | — |
@@ -248,7 +248,7 @@ Code coverage MUST be configured with a threshold of 90% for lines, branches, fu
 
 - Commit pipeline workflow MUST exist and be runnable (all referenced scripts and config files exist)
 - Deploy pipeline workflow MUST exist with staging deploy, smoke tests, approval gate, production deploy
-- All GitHub Actions MUST be pinned to commit SHA, not tags (`@v4` is not acceptable)
+- All GitHub Actions MUST be pinned to real, verifiable commit SHAs, not tags (`@v4` is not acceptable). The SHAs MUST correspond to actual published releases of the action — do NOT fabricate placeholder SHAs like `@a1b2c3d4...`. Look up the real SHA for each action's release tag (e.g., `actions/checkout@v4` → find the real commit SHA for v4)
 - All config files and scripts referenced in CI MUST exist and work when invoked
 
 #### 10.7: Implement Infrastructure
@@ -299,7 +299,12 @@ Walk through the generated `docs/tier1-checklist.md` item by item. For each item
 - [ ] CI workflows reference scripts/commands that exist and work
 - [ ] Architecture test config exists and rules match `docs/architecture.md`
 - [ ] All 13 test types have at least one test file: unit, integration, e2e, contract, property-based, mutation, fuzz, architecture, smoke, chaos, concurrency, data migration, infrastructure
-- [ ] OpenAPI spec exists and matches implemented routes
+- [ ] Mutation test actually invokes the mutation tool (not just checks config exists)
+- [ ] Contract test makes real HTTP requests and validates responses against OpenAPI schema (not just checks YAML structure)
+- [ ] Every log line includes `traceId`, `spanId`, `tenantId`, and `service` — verify all four fields are present, not just traceId/spanId
+- [ ] Coverage threshold is set to 90% (not 80% or lower) in both test config and CI pipeline
+- [ ] OpenAPI spec exists as a committed static file and matches implemented routes
+- [ ] GitHub Actions SHAs are real (not fabricated placeholders)
 - [ ] Terraform directory structure exists (at minimum placeholder `main.tf` files)
 - [ ] Linting passes with zero errors (verify the lint command actually works)
 
