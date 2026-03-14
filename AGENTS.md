@@ -222,6 +222,8 @@ Every test type defined in `docs/testing.md` MUST have at least one working test
 
 Tests that require infrastructure (DB, Redis) MUST use Testcontainers to spin up ephemeral containers. Do NOT gate tests behind environment variables like `INTEGRATION_TESTS=1` — if the test exists, it MUST run as part of `pnpm test` or a named test script (e.g., `pnpm test:integration`). Use Testcontainers so tests are self-contained and run anywhere without external services.
 
+**Implementation order for tests:** Create one test file per type first (breadth), then deepen coverage. Do NOT write 20+ unit tests before creating the other 12 test types — every test type MUST have a file before any type gets additional tests. This prevents running out of budget before reaching all types.
+
 | Test Type | What It MUST Do | What It MUST NOT Do |
 |---|---|---|
 | Unit | Test services and middleware with mocked dependencies | — |
@@ -288,7 +290,7 @@ Walk through the generated `docs/tier1-checklist.md` item by item. For each item
 - [ ] OpenTelemetry is initialized and tracing works
 - [ ] CI workflows reference scripts that exist in `package.json`
 - [ ] Architecture test config exists and rules match `docs/architecture.md`
-- [ ] All test types from `docs/testing.md` have at least one test file
+- [ ] All 13 test types have at least one test file: unit, integration, e2e, contract, property-based, mutation, fuzz, architecture, smoke, chaos, concurrency, data migration, infrastructure
 - [ ] OpenAPI spec exists and matches implemented routes
 - [ ] Terraform directory structure exists (at minimum placeholder `main.tf` files)
 - [ ] `pnpm lint` passes with no errors (verify the lint script actually works)
