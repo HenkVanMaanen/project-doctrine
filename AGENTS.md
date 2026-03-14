@@ -150,21 +150,21 @@ After generating all documentation and config files, implement the full project 
 
 Set up the monorepo/project structure exactly as defined in `docs/architecture.md`:
 
-- Initialize `package.json` (or equivalent) with all required dependencies and scripts
+- Initialize the project manifest (`package.json`, `Cargo.toml`, `go.mod`, `*.csproj`, etc.) with all required dependencies
 - Create the directory structure from the architecture doc — use vertical slice directories (e.g., `features/links/`), not flat `routes/` + `services/` directories
-- Install dependencies and verify `pnpm install` (or equivalent) succeeds
-- Every npm script referenced in CI workflows MUST exist in `package.json` (e.g., `test`, `test:coverage`, `build`, `lint`, `typecheck`)
+- Install dependencies and verify they resolve (e.g., `pnpm install`, `cargo build`, `go mod tidy`, `dotnet restore`)
+- Every build/test/lint script or command referenced in CI workflows MUST work when invoked
 
 #### 10.2: Implement Tier 1 Foundations
 
 Build everything required by the Tier 1 checklist (`docs/tier1-checklist.md`). Every item on the checklist MUST have corresponding code:
 
 **Security:**
-- Auth middleware: JWT validation (RS256) + API key validation (HMAC-SHA256)
-- Password hashing: bcrypt with cost factor ≥ 12 — NOT SHA-256, NOT plain hashing
-- RBAC middleware: `requireRole()` or equivalent that enforces role checks on protected routes
-- Input validation: Zod schemas at every route boundary
-- HTTP security headers: Helmet or equivalent with HSTS, CSP, X-Frame-Options, Referrer-Policy
+- Auth middleware: JWT validation (RS256) + API key validation (HMAC-SHA256), or session-based auth with secure cookies (SameSite, HttpOnly, Secure) — choose the pattern appropriate for the project type (API = JWT, webapp with SSR = sessions)
+- Password hashing: use the strongest algorithm available in your stack — bcrypt (cost ≥ 12), argon2id (preferred for Rust/Go/C#), or scrypt. NEVER use SHA-256, MD5, or plain hashing
+- RBAC middleware: enforce role checks on protected routes before allowing access
+- Input validation: validate all input at every route boundary using the stack's idiomatic validation library (e.g., Zod for TypeScript, validator for Go, FluentValidation for C#, serde + custom validation for Rust). Path parameters, query parameters, and request bodies MUST all be validated
+- HTTP security headers: set HSTS, CSP, X-Frame-Options, X-Content-Type-Options, Referrer-Policy via middleware or framework configuration
 - Rate limiting: per-endpoint limits as defined in `docs/security.md`
 - SSRF protection: URL validation that blocks private IP ranges, localhost, cloud metadata endpoints
 - Audit logging: a working service that writes to the `audit_log` table on every state-changing operation
@@ -179,8 +179,8 @@ Build everything required by the Tier 1 checklist (`docs/tier1-checklist.md`). E
 - Audit log pseudonymization: emails stored as `sha256(email + AUDIT_SALT)`, never plaintext
 
 **Observability:**
-- OpenTelemetry: install and configure `@opentelemetry/sdk-node` with auto-instrumentation for HTTP, PostgreSQL, Redis. OTel MUST initialize unconditionally (not skip when an env var is missing) — in development/test it can export to a no-op or console exporter, but the SDK MUST be active so traceId/spanId are always available
-- Structured logging: pino with `traceId`, `spanId`, `tenantId`, `service` in every log entry. The logger MUST extract trace context from OpenTelemetry's active span and inject it into every log line — do NOT just log static fields. Use `pino-opentelemetry-transport` or manually call `trace.getActiveSpan()` to get the current traceId/spanId
+- OpenTelemetry: install and configure the OTel SDK for your language (e.g., `@opentelemetry/sdk-node`, `opentelemetry-rust`, `go.opentelemetry.io/otel`, `OpenTelemetry.Extensions.Hosting`). OTel MUST initialize unconditionally (not skip when an env var is missing) — in development/test it can export to a no-op or console exporter, but the SDK MUST be active so traceId/spanId are always available
+- Structured logging: use the idiomatic structured logger for your stack (e.g., pino for Node.js, tracing for Rust, zerolog/zap for Go, Serilog for C#). Every log entry MUST include `traceId`, `spanId`, `tenantId`, and `service`. The logger MUST extract trace context from OpenTelemetry's active span — do NOT just log static fields
 - Health checks: `/healthz` (liveness) and `/readyz` (readiness with DB+Redis checks)
 - `traceId` in error responses: every RFC 9457 Problem Details response MUST include a trace/request ID
 
@@ -189,9 +189,9 @@ Build everything required by the Tier 1 checklist (`docs/tier1-checklist.md`). E
 Build every endpoint and feature defined in the generated `AGENTS.md`. Do not skip phases or endpoints:
 
 - Every endpoint listed in the generated `AGENTS.md` MUST be implemented
-- Every route MUST have authentication (`authenticate` preHandler)
+- Every route MUST have authentication middleware (or equivalent guard/filter/extractor)
 - Every state-changing route MUST call the audit logging service — this includes token refresh, not just CRUD operations
-- Every route that accepts user input MUST validate with Zod at the boundary — this includes path parameters (e.g., validate `:id` as UUID)
+- Every route that accepts user input MUST validate at the boundary using the stack's validation library — this includes path parameters (e.g., validate `:id` as UUID)
 - Every database query MUST use parameterized queries
 - Cache invalidation MUST occur when data changes (if caching is used)
 - Rate limiting MUST be per-endpoint (e.g., stricter limits on auth endpoints), not just a single global limit
@@ -204,7 +204,7 @@ Follow TDD for each feature: write failing test → implement → verify pass.
 Generate an `openapi.yaml` (or `openapi.json`) in the project root that documents all implemented endpoints. This spec MUST:
 
 - Describe every endpoint from the generated `AGENTS.md`
-- Include request/response schemas matching the Zod validation schemas
+- Include request/response schemas matching the validation schemas used in the code
 - Be valid OpenAPI 3.1 (validate with a linter or parser)
 - Be used by contract tests to verify routes match the spec
 
@@ -215,41 +215,41 @@ Every test type defined in `docs/testing.md` MUST have at least one working test
 **Do not fake test types.** A unit test relabeled as "concurrency" is not a concurrency test. A test that reads SQL file text is not a migration test. A test that validates a YAML schema is not a contract test. Each test type MUST use the technique appropriate to that type.
 
 **Do not stub test bodies.** Every test MUST contain real assertions that verify behavior. The following patterns are NOT acceptable and MUST NOT appear in any test file:
-- `expect(true).toBe(true)` or any tautological assertion
-- `describe.skip(...)` or `describe.skipIf(...)` or `it.skip(...)` — tests MUST NOT be conditionally skipped based on environment variables
+- `expect(true).toBe(true)`, `assert!(true)`, `Assert.True(true)`, or any tautological assertion in any language
+- `describe.skip`, `it.skip`, `#[ignore]`, `[Fact(Skip=...)]`, `t.Skip()`, or any mechanism that conditionally skips tests based on environment variables
 - Empty test bodies or `// TODO` placeholders
 - Tests that only log output without asserting anything
 
-Tests that require infrastructure (DB, Redis) MUST use Testcontainers to spin up ephemeral containers. Do NOT gate tests behind environment variables like `INTEGRATION_TESTS=1` — if the test exists, it MUST run as part of `pnpm test` or a named test script (e.g., `pnpm test:integration`). Use Testcontainers so tests are self-contained and run anywhere without external services.
+Tests that require infrastructure (DB, Redis) MUST use Testcontainers (available for all major languages: testcontainers for Node.js, testcontainers-rs for Rust, testcontainers-go for Go, Testcontainers.* for C#/Java) to spin up ephemeral containers. Do NOT gate tests behind environment variables like `INTEGRATION_TESTS=1` — if the test exists, it MUST run as part of the standard test command or a named test script. Use Testcontainers so tests are self-contained and run anywhere without external services.
 
 **Implementation order for tests:** Create one test file per type first (breadth), then deepen coverage. Do NOT write 20+ unit tests before creating the other 12 test types — every test type MUST have a file before any type gets additional tests. This prevents running out of budget before reaching all types.
 
 | Test Type | What It MUST Do | What It MUST NOT Do |
 |---|---|---|
 | Unit | Test services and middleware with mocked dependencies | — |
-| Integration | Use Testcontainers to start PostgreSQL and Redis, run migrations, then test auth flows, links CRUD, and GDPR erasure/export against the real database. Every test MUST make real SQL queries and assert on real query results | Use `vi.mock()` for DB/Redis, or use `describe.skipIf()` to skip when no DB is available — that's a stub, not an integration test |
-| E2E | Use Testcontainers for DB/Redis, boot the Fastify app with `app.inject()`, then execute a full flow: register → login → create link → redirect → verify analytics. Every step MUST assert on response status and body | Mock any infrastructure, or skip the test conditionally |
-| Contract | Use Testcontainers for DB/Redis, boot the Fastify app, load the OpenAPI spec, make real HTTP requests via `app.inject()`, and validate that response status codes, headers, and body shapes match the spec. Use a library like `openapi-response-validator` or manually validate against the spec's JSON Schema | Only validate the YAML/JSON structure of the spec file itself — that tests the spec, not the implementation |
-| Property-based | Use fast-check or equivalent to test domain invariants with random inputs | Use hand-picked inputs — that's a unit test |
-| Mutation | Install Stryker, configure it, and run `pnpm test:mutation` to verify it executes successfully. The mutation score threshold MUST be defined. Stryker MUST actually mutate source files and run tests against them | Only create a config file without verifying Stryker runs |
-| Fuzz | Use fast-check `fc.anything()` or equivalent to throw random/malformed input at parsers and validators | Use a small set of hand-crafted edge cases — that's a unit test |
-| Architecture | Run dependency-cruiser and fail if architectural rules are violated. The test MUST NOT silently pass if dependency-cruiser is unavailable — it must fail | Catch dependency-cruiser errors and `console.warn` + pass |
+| Integration | Use Testcontainers to start PostgreSQL and Redis, run migrations, then test auth flows, CRUD operations, and GDPR erasure/export against the real database. Every test MUST make real SQL queries and assert on real query results | Mock the database, or skip when no DB is available — that's a stub, not an integration test |
+| E2E | Use Testcontainers for DB/Redis, boot the app, then execute a full flow: register → login → create resource → verify. Every step MUST assert on response status and body | Mock any infrastructure, or skip the test conditionally |
+| Contract | Use Testcontainers for DB/Redis, boot the app, load the OpenAPI spec, make real HTTP requests, and validate that response status codes, headers, and body shapes match the spec. Use a library like `openapi-response-validator` or manually validate against the spec's JSON Schema | Only validate the YAML/JSON structure of the spec file itself — that tests the spec, not the implementation |
+| Property-based | Use a property-based testing library (fast-check, proptest, FsCheck, jqwik, gopter) to test domain invariants with random inputs | Use hand-picked inputs — that's a unit test |
+| Mutation | Configure and run a mutation testing tool (Stryker, cargo-mutants, go-mutesting, Stryker.NET, PITest). The mutation score threshold MUST be defined | Only create a config file without verifying the tool runs |
+| Fuzz | Use the property-based testing library with arbitrary/random input generation to throw malformed data at parsers and validators | Use a small set of hand-crafted edge cases — that's a unit test |
+| Architecture | Verify module dependency rules are not violated — either via a tool (dependency-cruiser, go-arch-lint, ArchUnit, etc.) or by scanning imports in source files. The test MUST fail if architectural boundaries are crossed | Silently pass if the tool is unavailable |
 | Smoke | Boot the real app (or hit a deployed URL) and verify critical paths respond correctly | — |
 | Chaos | Simulate real infrastructure failure: kill a Redis connection mid-request, inject network latency, or use Testcontainers to stop a container. The app MUST degrade gracefully (e.g., serve from DB when cache is down) | Only mock a module to throw — that's a unit test with extra steps |
-| Concurrency | Make concurrent requests to a real running app (or use concurrent DB transactions) to verify that race conditions are handled (e.g., duplicate short code prevention under concurrent inserts). Use `Promise.all` with real HTTP calls, not `Promise.resolve` | Generate codes in a loop and check uniqueness — that's a unit test |
+| Concurrency | Make concurrent requests to a real running app (or use concurrent DB transactions) to verify that race conditions are handled. Use actual parallelism (goroutines, tokio::spawn, Task.WhenAll, Promise.all) with real calls | Generate values in a loop and check uniqueness — that's a unit test |
 | Data migration | Use Testcontainers to start an empty PostgreSQL instance, run all migration files, then query `information_schema` and `pg_policies` to verify tables exist, columns have correct types, indexes are present, and RLS policies are active. Every assertion MUST query the real database | Only read SQL file content and check for keywords, or skip when no DB is available |
 | Infrastructure | Verify Dockerfile structure (multi-stage, non-root, HEALTHCHECK), docker-compose services, and Terraform files | — |
 
-Test data MUST use factories (e.g., `@faker-js/faker`), not hard-coded fixtures.
+Test data MUST use factories or builders with randomized data (e.g., `@faker-js/faker`, `fake` crate, `go-faker`, `Bogus` for C#), not hard-coded fixtures.
 
-Coverage threshold in vitest config MUST be set to 90% for lines, branches, functions, and statements — not 80%.
+Code coverage MUST be configured with a threshold of 90% for lines, branches, functions, and statements. Use the appropriate coverage tool for your stack (e.g., vitest/c8/istanbul for TypeScript, tarpaulin/llvm-cov for Rust, go test -cover for Go, dotnet-coverage for C#, JaCoCo for Java).
 
 #### 10.6: Implement CI/CD
 
 - Commit pipeline workflow MUST exist and be runnable (all referenced scripts and config files exist)
 - Deploy pipeline workflow MUST exist with staging deploy, smoke tests, approval gate, production deploy
 - All GitHub Actions MUST be pinned to commit SHA, not tags (`@v4` is not acceptable)
-- All config files referenced in CI MUST exist (`.dependency-cruiser.cjs`, vitest configs, etc.)
+- All config files and scripts referenced in CI MUST exist and work when invoked
 
 #### 10.7: Implement Infrastructure
 
@@ -259,22 +259,30 @@ Coverage threshold in vitest config MUST be set to 90% for lines, branches, func
 
 #### 10.8: Build Verification
 
-Run ALL of the following and fix any failures before reporting:
+Run the equivalent of ALL the following for your stack and fix any failures before reporting:
 
-```bash
-pnpm install          # dependencies resolve
-pnpm build            # compiles with no errors
-pnpm lint             # no lint errors
-pnpm test             # all tests pass
-pnpm test:coverage    # coverage ≥ 90%
+```
+# Install dependencies
+pnpm install / cargo build / go mod tidy / dotnet restore
+
+# Compile / build
+pnpm build / cargo build --release / go build ./... / dotnet build
+
+# Lint (zero errors)
+pnpm lint / cargo clippy -- -D warnings / golangci-lint run / dotnet format --verify-no-changes
+
+# Run all tests
+pnpm test / cargo test / go test ./... / dotnet test
+
+# Coverage ≥ 90%
+pnpm test:coverage / cargo tarpaulin / go test -cover / dotnet test --collect:"XPlat Code Coverage"
 ```
 
 If any command fails, fix the code and re-run. Do NOT report success with failing tests.
 
-Common pitfalls to verify before running:
-- ESLint flat config (`eslint.config.js` / `eslint.config.mjs`) does NOT support `--ext` flag — use `eslint .` or `eslint src/ tests/` instead
-- Every `pnpm test:*` script referenced in CI workflows MUST exist in `package.json`
-- Vitest config files referenced by `--config` flags MUST exist at the specified paths
+Common pitfalls:
+- Every script or command referenced in CI workflows MUST work when invoked locally
+- All config files referenced by build/lint/test tools MUST exist at the specified paths
 - If using a monorepo, shared packages MUST be built before dependent packages can compile
 
 #### 10.9: Doctrine Compliance Verification
@@ -282,18 +290,18 @@ Common pitfalls to verify before running:
 Walk through the generated `docs/tier1-checklist.md` item by item. For each item, verify the corresponding code exists. Specifically check:
 
 - [ ] Every endpoint in the generated `AGENTS.md` has a route handler
-- [ ] Every route has Zod validation at the boundary
+- [ ] Every route has input validation at the boundary
 - [ ] Every state-changing operation writes an audit log entry
 - [ ] RLS is activated per-request (not just defined in SQL)
 - [ ] RBAC is enforced (not just role stored — role checked before access)
-- [ ] Passwords use bcrypt, not SHA-256
+- [ ] Passwords use a strong hash (bcrypt/argon2id/scrypt), not SHA-256 or MD5
 - [ ] OpenTelemetry is initialized and tracing works
-- [ ] CI workflows reference scripts that exist in `package.json`
+- [ ] CI workflows reference scripts/commands that exist and work
 - [ ] Architecture test config exists and rules match `docs/architecture.md`
 - [ ] All 13 test types have at least one test file: unit, integration, e2e, contract, property-based, mutation, fuzz, architecture, smoke, chaos, concurrency, data migration, infrastructure
 - [ ] OpenAPI spec exists and matches implemented routes
 - [ ] Terraform directory structure exists (at minimum placeholder `main.tf` files)
-- [ ] `pnpm lint` passes with no errors (verify the lint script actually works)
+- [ ] Linting passes with zero errors (verify the lint command actually works)
 
 If any check fails, fix it before proceeding.
 
