@@ -160,14 +160,14 @@ Set up the monorepo/project structure exactly as defined in `docs/architecture.m
 Build everything required by the Tier 1 checklist (`docs/tier1-checklist.md`). Every item on the checklist MUST have corresponding code:
 
 **Security:**
-- Auth middleware: JWT validation (RS256) + API key validation (HMAC-SHA256), or session-based auth with secure cookies (SameSite, HttpOnly, Secure) — choose the pattern appropriate for the project type (API = JWT, webapp with SSR = sessions)
+- Auth middleware: JWT validation (RS256) + API key validation (HMAC-SHA256), or session-based auth with secure cookies (SameSite, HttpOnly, Secure) — choose the pattern appropriate for the project type (API = JWT, webapp with SSR = sessions). For API keys: HMAC-SHA256 means using a keyed hash (e.g., `HmacSHA256(key, secret)`) — NOT a plain `SHA-256(key)` digest. The HMAC secret MUST come from configuration, not be hardcoded
 - Password hashing: use the strongest algorithm available in your stack — bcrypt (cost ≥ 12), argon2id (preferred for Rust/Go/C#), or scrypt. NEVER use SHA-256, MD5, or plain hashing
-- RBAC middleware: enforce role checks on protected routes before allowing access
+- RBAC middleware: enforce role checks on protected routes before allowing access. Storing roles in the database is NOT enforcement — the role MUST be checked in middleware/guard/filter/policy before allowing the request through. DELETE and admin operations MUST require admin or owner role, not just any authenticated user
 - Input validation: validate all input at every route boundary using the stack's idiomatic validation library (e.g., Zod for TypeScript, validator for Go, FluentValidation for C#, serde + custom validation for Rust). Path parameters, query parameters, and request bodies MUST all be validated
 - HTTP security headers: set HSTS, CSP, X-Frame-Options, X-Content-Type-Options, Referrer-Policy via middleware or framework configuration
-- Rate limiting: per-endpoint limits as defined in `docs/security.md`
+- Rate limiting: per-endpoint limits as defined in `docs/security.md`. Rate limiters MUST be actually applied to route handlers (via middleware, decorator, annotation, or attribute) — defining a rate limit config without binding it to endpoints has no effect
 - SSRF protection: URL validation that blocks private IP ranges, localhost, cloud metadata endpoints
-- Audit logging: a working service that writes to the `audit_log` table on every state-changing operation
+- Audit logging: a working service that writes to the `audit_log` table on every state-changing operation — this explicitly includes login, logout, register, token refresh, and all CRUD operations. Do NOT forget logout
 - Account lockout: lock accounts after N consecutive failed login attempts
 - Refresh token rotation: issue new refresh token on every refresh, invalidate the old one, detect reuse (family invalidation)
 
@@ -175,12 +175,12 @@ Build everything required by the Tier 1 checklist (`docs/tier1-checklist.md`). E
 - Multi-tenant RLS: `SET LOCAL app.current_tenant_id` MUST be called at the start of every request — not just WHERE clause filtering
 - GDPR erasure endpoint: implement the full erasure pipeline (hard delete PII, anonymize audit logs)
 - GDPR export endpoint: return all user data as JSON/CSV
-- IP anonymization: hash IPs before storage, automated cleanup job for aged data
+- IP anonymization: hash IPs before storage. Implement an automated cleanup job (cron, scheduled task, or background worker) that purges IP hashes and click/analytics data older than the retention period
 - Audit log pseudonymization: emails stored as `sha256(email + AUDIT_SALT)`, never plaintext
 
 **Observability:**
 - OpenTelemetry: install and configure the OTel SDK for your language (e.g., `@opentelemetry/sdk-node`, `opentelemetry-rust`, `go.opentelemetry.io/otel`, `OpenTelemetry.Extensions.Hosting`). OTel MUST initialize unconditionally (not skip when an env var is missing) — in development/test it can export to a no-op or console exporter, but the SDK MUST be active so traceId/spanId are always available
-- Structured logging: use the idiomatic structured logger for your stack (e.g., pino for Node.js, tracing for Rust, zerolog/zap for Go, Serilog for C#). Every log entry MUST include `traceId`, `spanId`, `tenantId`, and `service`. The logger MUST extract trace context from OpenTelemetry's active span — do NOT just log static fields
+- Structured logging: use the idiomatic structured logger for your stack (e.g., pino for Node.js, tracing for Rust, zerolog/zap for Go, Serilog for C#). Every log entry MUST include ALL FOUR of these fields: `traceId`, `spanId`, `tenantId`, and `service`. The logger MUST extract trace context from OpenTelemetry's active span — do NOT just log static fields. `tenantId` MUST be injected into the logging context per-request (e.g., via MDC, LogContext, context vars, or span attributes) — defining an enricher/processor class without registering it in the logging pipeline is not sufficient. For unauthenticated requests, log `tenantId` as empty string, not omit it
 - Health checks: `/healthz` (liveness) and `/readyz` (readiness with DB+Redis checks)
 - `traceId` in error responses: every RFC 9457 Problem Details response MUST include a trace/request ID
 
@@ -190,11 +190,11 @@ Build every endpoint and feature defined in the generated `AGENTS.md`. Do not sk
 
 - Every endpoint listed in the generated `AGENTS.md` MUST be implemented
 - Every route MUST have authentication middleware (or equivalent guard/filter/extractor)
-- Every state-changing route MUST call the audit logging service — this includes token refresh, not just CRUD operations
+- Every state-changing route MUST call the audit logging service — this includes token refresh, not just CRUD operations. Logout MUST also write an audit entry
 - Every route that accepts user input MUST validate at the boundary using the stack's validation library — this includes path parameters (e.g., validate `:id` as UUID)
 - Every database query MUST use parameterized queries
 - Cache invalidation MUST occur when data changes (if caching is used)
-- Rate limiting MUST be per-endpoint (e.g., stricter limits on auth endpoints), not just a single global limit
+- Rate limiting MUST be per-endpoint (e.g., stricter limits on auth endpoints), not just a single global limit. The rate limiter config MUST be bound to actual route handlers — defining rate limit policies/configs without attaching them to endpoints is dead code
 - RBAC roles on endpoints must be meaningful — `requireRole('member')` on a DELETE is effectively no protection since member is the lowest role
 
 Follow TDD for each feature: write failing test → implement → verify pass.
@@ -229,7 +229,7 @@ Tests that require infrastructure (DB, Redis) MUST use Testcontainers (available
 | Unit | Test services and middleware with mocked dependencies | — |
 | Integration | Use Testcontainers to start PostgreSQL and Redis, run migrations, then test auth flows, CRUD operations, and GDPR erasure/export against the real database. Every test MUST make real SQL queries and assert on real query results | Mock the database, or skip when no DB is available — that's a stub, not an integration test |
 | E2E | Use Testcontainers for DB/Redis, boot the app, then execute a full flow: register → login → create resource → verify. Every step MUST assert on response status and body | Mock any infrastructure, or skip the test conditionally |
-| Contract | Use Testcontainers for DB/Redis, boot the app, load the OpenAPI spec, make real HTTP requests to live endpoints, and validate that response status codes, headers, and body shapes match the spec. The test MUST: (1) start the real application, (2) make actual HTTP requests, (3) compare responses against the OpenAPI schema definitions. Use a library like `openapi-response-validator` or manually validate response JSON against the spec's JSON Schema | Only validate the YAML/JSON structure of the spec file itself — that tests the spec, not the implementation. Do NOT just assert the file contains certain strings or check that endpoints return non-404 |
+| Contract | Use Testcontainers for DB/Redis, boot the app, load the **committed** `openapi.yaml` static file from disk (NOT the app's live `/api-docs` or `/openapi.json` endpoint), make real HTTP requests to live endpoints, and validate that response status codes, headers, and body shapes match the spec. The test MUST: (1) start the real application, (2) load the committed OpenAPI spec file, (3) make actual HTTP requests, (4) compare responses against the OpenAPI schema definitions. Use a library like `openapi-response-validator` or manually validate response JSON against the spec's JSON Schema | Only validate the YAML/JSON structure of the spec file itself — that tests the spec, not the implementation. Do NOT just assert the file contains certain strings or check that endpoints return non-404 |
 | Property-based | Use a property-based testing library (fast-check, proptest, FsCheck, jqwik, gopter) to test domain invariants with random inputs | Use hand-picked inputs — that's a unit test |
 | Mutation | Configure and run a mutation testing tool (Stryker, cargo-mutants, go-mutesting, Stryker.NET, PITest). The test MUST either: (a) invoke the mutation tool programmatically or via shell command and assert on the exit code or score, OR (b) create a dedicated test/script that the CI pipeline runs. A config file alone is NOT sufficient — the tool MUST be invoked and verified to produce output. The mutation score threshold MUST be defined. Do NOT write manual "mutant" functions — use the real mutation tool | Only create a config file without verifying the tool runs. Do NOT write tests that merely assert a config file exists or is valid JSON/YAML — that is not mutation testing |
 | Fuzz | Use the property-based testing library with arbitrary/random input generation to throw malformed data at parsers and validators | Use a small set of hand-crafted edge cases — that's a unit test |
@@ -307,6 +307,13 @@ Walk through the generated `docs/tier1-checklist.md` item by item. For each item
 - [ ] GitHub Actions SHAs are real (not fabricated placeholders)
 - [ ] Terraform directory structure exists (at minimum placeholder `main.tf` files)
 - [ ] Linting passes with zero errors (verify the lint command actually works)
+- [ ] Rate limiting is actually applied to route handlers (not just configured but unbound)
+- [ ] API key validation uses HMAC-SHA256 with a configured secret (not plain SHA-256 hash)
+- [ ] Audit logging covers login, logout, register, token refresh, and all CRUD operations
+- [ ] Pre-commit hook config exists (e.g., Husky, .pre-commit-config.yaml, lefthook)
+- [ ] IP data cleanup job exists (cron, scheduled task, or background worker for aged data)
+- [ ] RBAC role checks are enforced on destructive operations (DELETE requires admin/owner, not just member)
+- [ ] Contract test loads the committed `openapi.yaml` static file (not the app's live spec endpoint)
 
 If any check fails, fix it before proceeding.
 
