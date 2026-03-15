@@ -255,9 +255,10 @@ Walk through the generated `docs/tier1-checklist.md` item by item. For each item
 - [ ] CI workflows reference scripts/commands that exist and work
 - [ ] Architecture test config exists and rules match `docs/architecture.md`
 - [ ] All 13 test types have at least one test file: unit, integration, e2e, contract, property-based, mutation, fuzz, architecture, smoke, chaos, concurrency, data migration, infrastructure
-- [ ] Mutation test actually invokes the mutation tool (not just checks config exists)
+- [ ] Mutation test actually invokes the mutation tool with real code mutation (not just checks config exists, not `--dryRun`, not `--list` mode)
 - [ ] Contract test makes real HTTP requests and validates responses against OpenAPI schema (not just checks YAML structure)
 - [ ] Every log line includes `traceId`, `spanId`, `tenantId`, and `service` — verify all four fields are present, not just traceId/spanId
+- [ ] `tenantId` is logged as empty string `""` (not null/None/nil/omitted) for unauthenticated requests — test by checking a login or health check log entry
 - [ ] Coverage threshold is set to 90% (not 80% or lower) in both test config and CI pipeline
 - [ ] OpenAPI spec exists as a committed static file and matches implemented routes
 - [ ] GitHub Actions SHAs are real (not fabricated placeholders)
