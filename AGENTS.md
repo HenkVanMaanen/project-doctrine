@@ -157,45 +157,21 @@ Set up the monorepo/project structure exactly as defined in `docs/architecture.m
 
 #### 10.2: Implement Tier 1 Foundations
 
-Build everything required by the Tier 1 checklist (`docs/tier1-checklist.md`). Every item on the checklist MUST have corresponding code:
+Build everything required by the Tier 1 checklist (`docs/tier1-checklist.md`). Every item on the checklist MUST have corresponding code. Implement all requirements from the Tier 1 doctrine files:
 
-**Security:**
-- Auth middleware: JWT validation (RS256) + API key validation (HMAC-SHA256), or session-based auth with secure cookies (SameSite, HttpOnly, Secure) — choose the pattern appropriate for the project type (API = JWT, webapp with SSR = sessions). For API keys: HMAC-SHA256 means using a keyed hash (e.g., `HmacSHA256(key, secret)`) — NOT a plain `SHA-256(key)` digest. The HMAC secret MUST come from configuration, not be hardcoded
-- Password hashing: use the strongest algorithm available in your stack — bcrypt (cost ≥ 12), argon2id (preferred for Rust/Go/C#), or scrypt. NEVER use SHA-256, MD5, or plain hashing
-- RBAC middleware: enforce role checks on protected routes before allowing access. Storing roles in the database is NOT enforcement — the role MUST be checked in middleware/guard/filter/policy before allowing the request through. DELETE and admin operations MUST require admin or owner role, not just any authenticated user
-- Input validation: validate all input at every route boundary using the stack's idiomatic validation library (e.g., Zod for TypeScript, validator for Go, FluentValidation for C#, serde + custom validation for Rust). Path parameters, query parameters, and request bodies MUST all be validated
-- HTTP security headers: set HSTS, CSP, X-Frame-Options, X-Content-Type-Options, Referrer-Policy via middleware or framework configuration
-- Rate limiting: per-endpoint limits as defined in `docs/security.md`. Rate limiters MUST be actually applied to route handlers (via middleware, decorator, annotation, or attribute) — defining a rate limit config without binding it to endpoints has no effect
-- SSRF protection: URL validation that blocks private IP ranges, localhost, cloud metadata endpoints
-- Audit logging: a working service that writes to the `audit_log` table on every state-changing operation — this explicitly includes login, logout, register, token refresh, and all CRUD operations. Do NOT forget logout
-- Account lockout: lock accounts after N consecutive failed login attempts
-- Refresh token rotation: issue new refresh token on every refresh, invalidate the old one, detect reuse (family invalidation)
+- **Security** (`doctrine/security.md`): authentication (JWT/sessions/API keys), password hashing, RBAC enforcement, input validation, HTTP security headers, rate limiting, SSRF protection, audit logging, account lockout, refresh token rotation
+- **Data Privacy** (`doctrine/data-privacy.md`): multi-tenant RLS, GDPR erasure and export endpoints, IP anonymization with cleanup job, audit log pseudonymization
+- **Observability** (`doctrine/telemetry.md`): OpenTelemetry initialization, structured logging with all four required fields, health checks, traceId in error responses
 
-**Data Privacy:**
-- Multi-tenant RLS: `SET LOCAL app.current_tenant_id` MUST be called at the start of every request — not just WHERE clause filtering
-- GDPR erasure endpoint: implement the full erasure pipeline (hard delete PII, anonymize audit logs)
-- GDPR export endpoint: return all user data as JSON/CSV
-- IP anonymization: hash IPs before storage. Implement an automated cleanup job (cron, scheduled task, or background worker) that purges IP hashes and click/analytics data older than the retention period
-- Audit log pseudonymization: emails stored as `sha256(email + AUDIT_SALT)`, never plaintext
-
-**Observability:**
-- OpenTelemetry: install and configure the OTel SDK for your language (e.g., `@opentelemetry/sdk-node`, `opentelemetry-rust`, `go.opentelemetry.io/otel`, `OpenTelemetry.Extensions.Hosting`). OTel MUST initialize unconditionally (not skip when an env var is missing) — in development/test it can export to a no-op or console exporter, but the SDK MUST be active so traceId/spanId are always available
-- Structured logging: use the idiomatic structured logger for your stack (e.g., pino for Node.js, tracing for Rust, zerolog/zap for Go, Serilog for C#). Every log entry MUST include ALL FOUR of these fields: `traceId`, `spanId`, `tenantId`, and `service`. The logger MUST extract trace context from OpenTelemetry's active span — do NOT just log static fields. `tenantId` MUST be injected into the logging context per-request (e.g., via MDC, LogContext, context vars, or span attributes) — defining an enricher/processor class without registering it in the logging pipeline is not sufficient. For unauthenticated requests, log `tenantId` as empty string, not omit it
-- Health checks: `/healthz` (liveness) and `/readyz` (readiness with DB+Redis checks)
-- `traceId` in error responses: every RFC 9457 Problem Details response MUST include a trace/request ID
+All prescriptive implementation details — including anti-patterns to avoid, stack-specific tooling, and enforcement requirements — are in the respective doctrine files. Do not soften or skip any requirement.
 
 #### 10.3: Implement All Features
 
 Build every endpoint and feature defined in the generated `AGENTS.md`. Do not skip phases or endpoints:
 
-- Every endpoint listed in the generated `AGENTS.md` MUST be implemented
-- Every route MUST have authentication middleware (or equivalent guard/filter/extractor)
-- Every state-changing route MUST call the audit logging service — this includes token refresh, not just CRUD operations. Logout MUST also write an audit entry
-- Every route that accepts user input MUST validate at the boundary using the stack's validation library — this includes path parameters (e.g., validate `:id` as UUID)
-- Every database query MUST use parameterized queries
+- Every endpoint MUST be implemented with authentication middleware, input validation, parameterized queries, and audit logging
+- Apply all security requirements from `doctrine/security.md` to every route: RBAC enforcement, rate limiting bound to handlers, audit logging for all state-changing operations (including logout and token refresh)
 - Cache invalidation MUST occur when data changes (if caching is used)
-- Rate limiting MUST be per-endpoint (e.g., stricter limits on auth endpoints), not just a single global limit. The rate limiter config MUST be bound to actual route handlers — defining rate limit policies/configs without attaching them to endpoints is dead code
-- RBAC roles on endpoints must be meaningful — `requireRole('member')` on a DELETE is effectively no protection since member is the lowest role
 
 Follow TDD for each feature: write failing test → implement → verify pass.
 
@@ -210,52 +186,32 @@ Generate a **committed** `openapi.yaml` (or `openapi.json`) in the project root 
 
 #### 10.5: Implement All Test Types
 
-Every test type defined in `docs/testing.md` MUST have at least one working test. "Working" means the test exercises real logic and would catch real bugs — not just `expect(true).toBe(true)` or mocks asserting against other mocks.
+Every test type defined in `doctrine/testing.md` MUST have at least one working test. Follow the "Test Implementation Requirements" table, "Test Anti-Patterns" section, and "Testcontainers" section in `doctrine/testing.md` exactly.
 
-**Do not fake test types.** A unit test relabeled as "concurrency" is not a concurrency test. A test that reads SQL file text is not a migration test. A test that validates a YAML schema is not a contract test. Each test type MUST use the technique appropriate to that type.
+Key requirements (see `doctrine/testing.md` for full details):
 
-**Do not stub test bodies.** Every test MUST contain real assertions that verify behavior. The following patterns are NOT acceptable and MUST NOT appear in any test file:
-- `expect(true).toBe(true)`, `assert!(true)`, `Assert.True(true)`, or any tautological assertion in any language
-- `describe.skip`, `it.skip`, `#[ignore]`, `[Fact(Skip=...)]`, `t.Skip()`, or any mechanism that conditionally skips tests based on environment variables
-- Empty test bodies or `// TODO` placeholders
-- Tests that only log output without asserting anything
-
-Tests that require infrastructure (DB, Redis) MUST use Testcontainers (available for all major languages: testcontainers for Node.js, testcontainers-rs for Rust, testcontainers-go for Go, Testcontainers.* for C#/Java) to spin up ephemeral containers. Do NOT gate tests behind environment variables like `INTEGRATION_TESTS=1` — if the test exists, it MUST run as part of the standard test command or a named test script. Use Testcontainers so tests are self-contained and run anywhere without external services.
-
-**Implementation order for tests:** Create one test file per type first (breadth), then deepen coverage. Do NOT write 20+ unit tests before creating the other 12 test types — every test type MUST have a file before any type gets additional tests. This prevents running out of budget before reaching all types.
-
-| Test Type | What It MUST Do | What It MUST NOT Do |
-|---|---|---|
-| Unit | Test services and middleware with mocked dependencies | — |
-| Integration | Use Testcontainers to start PostgreSQL and Redis, run migrations, then test auth flows, CRUD operations, and GDPR erasure/export against the real database. Every test MUST make real SQL queries and assert on real query results | Mock the database, or skip when no DB is available — that's a stub, not an integration test |
-| E2E | Use Testcontainers for DB/Redis, boot the app, then execute a full flow: register → login → create resource → verify. Every step MUST assert on response status and body | Mock any infrastructure, or skip the test conditionally |
-| Contract | Use Testcontainers for DB/Redis, boot the app, load the **committed** `openapi.yaml` static file from disk (NOT the app's live `/api-docs` or `/openapi.json` endpoint), make real HTTP requests to live endpoints, and validate that response status codes, headers, and body shapes match the spec. The test MUST: (1) start the real application, (2) load the committed OpenAPI spec file, (3) make actual HTTP requests, (4) compare responses against the OpenAPI schema definitions. Use a library like `openapi-response-validator` or manually validate response JSON against the spec's JSON Schema | Only validate the YAML/JSON structure of the spec file itself — that tests the spec, not the implementation. Do NOT just assert the file contains certain strings or check that endpoints return non-404 |
-| Property-based | Use a property-based testing library (fast-check, proptest, FsCheck, jqwik, gopter) to test domain invariants with random inputs | Use hand-picked inputs — that's a unit test |
-| Mutation | Configure and run a mutation testing tool (Stryker, cargo-mutants, go-mutesting, Stryker.NET, PITest). The test MUST either: (a) invoke the mutation tool programmatically or via shell command and assert on the exit code or score, OR (b) create a dedicated test/script that the CI pipeline runs. A config file alone is NOT sufficient — the tool MUST be invoked and verified to produce output. The mutation score threshold MUST be defined. Do NOT write manual "mutant" functions — use the real mutation tool | Only create a config file without verifying the tool runs. Do NOT write tests that merely assert a config file exists or is valid JSON/YAML — that is not mutation testing |
-| Fuzz | Use the property-based testing library with arbitrary/random input generation to throw malformed data at parsers and validators | Use a small set of hand-crafted edge cases — that's a unit test |
-| Architecture | Verify module dependency rules are not violated — either via a tool (dependency-cruiser, go-arch-lint, ArchUnit, etc.) or by scanning imports in source files. The test MUST fail if architectural boundaries are crossed | Silently pass if the tool is unavailable |
-| Smoke | Boot the real app (or hit a deployed URL) and verify critical paths respond correctly | — |
-| Chaos | Simulate real infrastructure failure: kill a Redis connection mid-request, inject network latency, or use Testcontainers to stop a container. The app MUST degrade gracefully (e.g., serve from DB when cache is down) | Only mock a module to throw — that's a unit test with extra steps |
-| Concurrency | Make concurrent requests to a real running app (or use concurrent DB transactions) to verify that race conditions are handled. Use actual parallelism (goroutines, tokio::spawn, Task.WhenAll, Promise.all) with real calls | Generate values in a loop and check uniqueness — that's a unit test |
-| Data migration | Use Testcontainers to start an empty PostgreSQL instance, run all migration files, then query `information_schema` and `pg_policies` to verify tables exist, columns have correct types, indexes are present, and RLS policies are active. Every assertion MUST query the real database | Only read SQL file content and check for keywords, or skip when no DB is available |
-| Infrastructure | Verify Dockerfile structure (multi-stage, non-root, HEALTHCHECK), docker-compose services, and Terraform files | — |
-
-Test data MUST use factories or builders with randomized data (e.g., `@faker-js/faker`, `fake` crate, `go-faker`, `Bogus` for C#), not hard-coded fixtures.
-
-Code coverage MUST be configured with a threshold of 90% for lines, branches, functions, and statements. Use the appropriate coverage tool for your stack (e.g., vitest/c8/istanbul for TypeScript, tarpaulin/llvm-cov for Rust, go test -cover for Go, dotnet-coverage for C#, JaCoCo for Java).
+- All 13 test types MUST have at least one file — breadth-first (one per type before deepening any type)
+- Tests requiring infrastructure MUST use Testcontainers — no environment variable gating
+- No tautological assertions, skipped tests, or empty bodies
+- Each test type MUST use the technique appropriate to that type (not relabeled unit tests)
+- Test data MUST use factories with randomized data
+- Code coverage ≥ 90% for lines, branches, functions, and statements
 
 #### 10.6: Implement CI/CD
 
-- Commit pipeline workflow MUST exist and be runnable (all referenced scripts and config files exist)
-- Deploy pipeline workflow MUST exist with staging deploy, smoke tests, approval gate, production deploy
-- All GitHub Actions MUST be pinned to real, verifiable commit SHAs, not tags (`@v4` is not acceptable). The SHAs MUST correspond to actual published releases of the action — do NOT fabricate placeholder SHAs like `@a1b2c3d4...`. Look up the real SHA for each action's release tag (e.g., `actions/checkout@v4` → find the real commit SHA for v4)
+Implement both pipelines as defined in `doctrine/ci-cd.md`:
+
+- Commit pipeline (pre-merge) and deploy pipeline (post-merge) with all stages defined in the doctrine
+- Follow all pipeline security requirements from `doctrine/ci-cd.md`: SHA pinning with real verifiable SHAs, pre-commit hooks, secrets management
 - All config files and scripts referenced in CI MUST exist and work when invoked
 
 #### 10.7: Implement Infrastructure
 
-- Dockerfile: multi-stage build, non-root user, health check
-- docker-compose.yml: all backing services (DB, cache) with health checks
-- IaC stubs: at minimum, create the Terraform module directory structure with placeholder `main.tf` files that document the required resources. Full IaC implementation is optional but the structure MUST match `docs/architecture.md`.
+Implement all infrastructure requirements from `doctrine/infrastructure.md`:
+
+- Dockerfile with multi-stage build, non-root user, and HEALTHCHECK instruction
+- docker-compose.yml with all backing services and health checks
+- IaC directory structure matching `docs/architecture.md` (at minimum placeholder files documenting required resources)
 
 #### 10.8: Build Verification
 

@@ -12,7 +12,8 @@ Applies to: all
   - Non-root user
   - Minimal base images
   - `.dockerignore` configured
-- Docker Compose MUST be provided for local development.
+  - `HEALTHCHECK` instruction MUST be present
+- Docker Compose MUST be provided for local development with all backing services (DB, cache) including health checks.
 
 ### Container Registry
 
@@ -27,6 +28,7 @@ Applies to: all
 - All infrastructure MUST be defined as code.
 - Choose tooling appropriate for the target platform (Terraform, Pulumi, CloudFormation, etc.).
 - IaC MUST be version-controlled alongside application code or in a dedicated repo.
+- At minimum, the IaC directory structure MUST exist with placeholder files documenting required resources, even if full implementation is deferred.
 
 ### Vendor Lock-in
 

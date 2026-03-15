@@ -10,9 +10,10 @@ Applies to: all
 
 ### Logging
 
-- Structured JSON logging MUST be used.
+- Structured JSON logging MUST be used via the stack's idiomatic structured logger (e.g., pino for Node.js, tracing for Rust, zerolog/zap for Go, Serilog for C#, Logback/SLF4J for Java).
 - Log levels MUST follow syslog severity ([RFC 5424](https://www.rfc-editor.org/rfc/rfc5424)).
-- Every log entry MUST include: timestamp (ISO 8601), level, correlation/trace ID, service name, message.
+- Every log entry MUST include ALL FOUR of these fields: `traceId`, `spanId`, `tenantId`, and `service`. The logger MUST extract trace context from OpenTelemetry's active span — do NOT log static placeholder values.
+- `tenantId` MUST be injected into the logging context per-request (e.g., via MDC, LogContext, context vars, or span attributes) — defining an enricher/processor class without registering it in the logging pipeline is not sufficient. For unauthenticated requests, log `tenantId` as empty string, not omit it.
 - PII MUST NOT appear in logs.
 
 ### Metrics
@@ -24,7 +25,9 @@ Applies to: all
 ### Tracing
 
 - Distributed tracing via OpenTelemetry MUST be implemented.
+- OpenTelemetry MUST initialize unconditionally (not skip when an env var is missing) — in development/test it can export to a no-op or console exporter, but the SDK MUST be active so traceId/spanId are always available.
 - All inter-service calls MUST propagate trace context ([W3C Trace Context](https://www.w3.org/TR/trace-context/)).
+- Every RFC 9457 Problem Details error response MUST include a `traceId` field.
 
 ### SLOs/SLIs
 

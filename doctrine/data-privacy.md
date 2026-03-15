@@ -32,12 +32,13 @@ The system MUST support:
 - Right of access ([Art. 15](https://gdpr-info.eu/art-15-gdpr/))
 - Right to rectification ([Art. 16](https://gdpr-info.eu/art-16-gdpr/))
 - Right to erasure ([Art. 17](https://gdpr-info.eu/art-17-gdpr/))
-- Right to data portability ([Art. 20](https://gdpr-info.eu/art-20-gdpr/))
+- Right to data portability ([Art. 20](https://gdpr-info.eu/art-20-gdpr/)) — export all user data as JSON or CSV
 
 ### Erasure and Audit Trail Reconciliation
 
 - When erasure is requested, PII MUST be hard-deleted (physical deletion).
 - Audit log entries referencing the deleted user MUST be anonymized or pseudonymized — never deleted entirely.
+- Audit log pseudonymization MUST use `sha256(email + AUDIT_SALT)` — never store plaintext email in audit logs.
 - The erasure process MUST be documented in an ADR specifying the implementation per data type.
 - Anonymization MUST be irreversible — pseudonymized IDs MUST NOT be mappable back to the original user after erasure.
 
@@ -45,12 +46,13 @@ The system MUST support:
 
 - Data retention policies MUST be defined for each data category.
 - Automated deletion MUST be implemented for expired data.
+- IP addresses MUST be hashed before storage. An automated cleanup job (cron, scheduled task, or background worker) MUST purge IP hashes and click/analytics data older than the retention period.
 
 ### Multi-Tenancy
 
 If the project is multi-tenant:
 
-- Tenant data isolation MUST be enforced at the data layer (e.g., row-level security, schema-per-tenant, or database-per-tenant).
+- Tenant data isolation MUST be enforced at the data layer (e.g., row-level security, schema-per-tenant, or database-per-tenant). For RLS: `SET LOCAL app.current_tenant_id` (or equivalent) MUST be called at the start of every request — not just WHERE clause filtering.
 - Tenant context MUST be propagated through all layers of the application.
 - Cross-tenant data access MUST be impossible by default — any exception requires an ADR.
 - Tenant isolation MUST be verified through automated tests.

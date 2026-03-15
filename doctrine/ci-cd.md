@@ -78,6 +78,12 @@ Runs after merge to main. Gates production deployment.
 
 - CI/CD secrets MUST be managed via the platform's secret store, never in pipeline files.
 - Pipeline definitions MUST be version-controlled.
+- All GitHub Actions (or equivalent CI actions) MUST be pinned to real, verifiable commit SHAs, not tags (`@v4` is not acceptable). The SHAs MUST correspond to actual published releases — do NOT fabricate placeholder SHAs.
+- All config files and scripts referenced in CI workflows MUST exist and work when invoked locally.
+
+### Pre-Commit Hooks
+
+- Pre-commit hooks MUST be configured (e.g., Husky, `.pre-commit-config.yaml`, lefthook) to run formatting, linting, and type-checking on staged files.
 
 ## See Also
 

@@ -20,12 +20,18 @@ Applies to: all
 - JWTs ([RFC 7519](https://www.rfc-editor.org/rfc/rfc7519)) MUST be used for stateless session tokens.
 - Token lifetimes MUST be short-lived with refresh token rotation.
 - Refresh tokens MUST be bound to the client and rotated on use.
+- Refresh token rotation MUST issue a new token on every use, invalidate the old one, and detect reuse (family invalidation).
+- Account lockout MUST be implemented: lock accounts after N consecutive failed login attempts.
+- Password hashing MUST use the strongest available algorithm: argon2id (preferred), bcrypt (cost ≥ 12), or scrypt. SHA-256, MD5, and plain hashing MUST NOT be used for passwords.
+- For API key authentication: HMAC-SHA256 MUST be used (a keyed hash, e.g., `HMAC(key, secret)`) — NOT a plain `SHA-256(key)` digest. The HMAC secret MUST come from configuration, not be hardcoded.
 
 ### Authorization
 
 - An authorization model MUST be chosen (RBAC, ABAC, or policy-based) and documented in an ADR.
 - Authorization SHOULD follow the [AuthZEN](https://openid.net/specs/openid-authzen-authorization-api-1_0.html) authorization API specification to decouple authorization decisions from business logic.
 - Authorization decisions MUST be enforced at the API/service boundary, not only in the UI.
+- RBAC enforcement MUST occur in middleware, guards, filters, or policies before allowing the request through — storing roles in the database without checking them is NOT enforcement.
+- Destructive operations (DELETE) and admin operations MUST require admin or owner role, not just any authenticated user.
 
 ### Service-to-Service Authentication
 
@@ -97,6 +103,13 @@ If the project handles file uploads, the following MUST be applied (per [OWASP F
 - All external input MUST be validated at system boundaries.
 - Apply OWASP input validation guidelines.
 - Parameterized queries MUST be used for all database operations.
+- Input validation MUST use the stack's idiomatic validation library (e.g., Zod, FluentValidation, serde + custom validation). Path parameters, query parameters, and request bodies MUST all be validated at every route boundary.
+- SSRF protection MUST be implemented: URL validation MUST block private IP ranges (10.x, 172.16-31.x, 192.168.x, 127.x), localhost, and cloud metadata endpoints (169.254.169.254).
+
+### Rate Limiting
+
+- Per-endpoint rate limits MUST be enforced, with stricter limits on authentication endpoints.
+- Rate limiters MUST be bound to actual route handlers (via middleware, decorator, annotation, or attribute) — defining rate limit configurations without attaching them to endpoints has no effect.
 
 ### Audit Logging
 
@@ -105,7 +118,8 @@ If the project handles file uploads, the following MUST be applied (per [OWASP F
 - Audit logs MUST be stored separately from application logs.
 - Audit logs MUST be tamper-evident (append-only, or signed).
 - Audit log retention MUST comply with `data-privacy.md` retention policies.
-- PII in audit logs MUST be pseudonymized where possible.
+- Audit logging MUST cover all state-changing operations explicitly: login, logout, register, token refresh, and all CRUD operations.
+- PII in audit logs MUST be pseudonymized (see `data-privacy.md` for pseudonymization method).
 
 ## See Also
 
