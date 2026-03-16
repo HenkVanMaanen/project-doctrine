@@ -22,6 +22,7 @@ Applies to: API, webapp
 
 - REST APIs MUST have an OpenAPI 3.1 specification.
 - The spec MUST be the source of truth — code MUST be generated from or validated against it.
+- A **committed** `openapi.yaml` (or `openapi.json`) static file MUST exist in the project repository so contract tests can validate against it without booting the application. Even if the framework serves the spec dynamically (e.g., SpringDoc, FastAPI `/docs`), the static file MUST be committed.
 - GraphQL APIs MUST have a schema-first design.
 
 ### Versioning
@@ -41,6 +42,7 @@ Applies to: API, webapp
 ### Error Handling
 
 - Errors MUST use RFC 9457 Problem Details format (JSON).
+- Every Problem Details error response MUST include a `traceId` field extracted from the OpenTelemetry active span (see `telemetry.md`).
 - Error responses MUST NOT leak internal details (stack traces, internal IDs, SQL).
 
 ### Rate Limiting
@@ -66,6 +68,7 @@ Applies to: API, webapp
 
 - Collection endpoints MUST support pagination.
 - Use cursor-based pagination for large datasets; offset-based is acceptable for small, stable datasets.
+- Cursor-based pagination MUST use opaque cursor tokens (e.g., base64-encoded keyset values), not raw database IDs or offsets.
 
 ## See Also
 

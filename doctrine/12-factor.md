@@ -13,12 +13,12 @@ All twelve factors MUST be applied. Key decisions for this doctrine:
 - Config MUST be stored in environment variables or a secret manager.
 - Environment variables are acceptable for non-sensitive config.
 - Sensitive values MUST use a secret manager. See `secrets.md`.
-- All required config MUST be validated at application startup — the application MUST fail fast with a clear error if required config is missing, malformed, or out of expected range.
+- All required config MUST be validated at application startup — the application MUST fail fast with a clear error if required config is missing, malformed, or out of expected range. Use the stack's idiomatic validation (e.g., Zod for TypeScript, validator for Go, Pydantic for Python, FluentValidation for C#).
 
 ### VI. Processes
 
 - Application processes MUST be stateless.
-- Session state MUST be handled via JWT tokens (see `security.md`).
+- Session state MUST be handled externally — via JWT tokens for APIs or server-side sessions stored in a backing service (Redis/DB) for webapps with SSR (see `security.md`).
 - Persistent data MUST be stored in backing services.
 
 ### X. Dev/Prod Parity

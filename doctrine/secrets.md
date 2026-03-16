@@ -13,14 +13,15 @@ Applies to: all
 
 ### Scanning
 
-- Secret scanning MUST run in CI to prevent accidental commits.
-- Pre-commit hooks SHOULD scan for secrets locally.
+- Secret scanning MUST run in CI to prevent accidental commits. Recommended tools: gitleaks, detect-secrets, TruffleHog, or GitGuardian.
+- Pre-commit hooks MUST scan for secrets locally using the same scanning tool as CI.
 
 ### Rotation
 
-- A secret rotation policy MUST be defined.
+- A secret rotation policy MUST be defined with explicit rotation intervals (e.g., 90 days for API keys, annually for encryption keys).
 - Secrets MUST be rotatable without downtime.
 - Rotation SHOULD be automated where the secret manager supports it.
+- Secrets with hardcoded fallback values (e.g., `config["SALT"] ?? "default-salt"`) MUST NOT be used — the application MUST fail at startup if a required secret is missing.
 
 ### Access
 

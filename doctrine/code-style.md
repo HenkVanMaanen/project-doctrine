@@ -6,14 +6,14 @@ Applies to: all
 
 ### Formatting
 
-- An automated code formatter MUST be configured for the chosen stack.
+- An automated code formatter MUST be configured for the chosen stack. Recommended: Prettier/Biome (TypeScript), rustfmt (Rust), gofmt/goimports (Go), Black/Ruff (Python), dotnet format (C#), google-java-format/Spotless (Java).
 - Formatting MUST be enforced in CI — builds MUST fail on unformatted code.
 - Formatting MUST be applied via pre-commit hook.
 
 ### Linting
 
-- A linter MUST be configured with strict rules.
-- Linting MUST be enforced in CI.
+- A linter MUST be configured with strict rules. Recommended: ESLint (TypeScript), clippy (Rust), golangci-lint (Go), Ruff/Flake8 (Python), Roslyn analyzers (C#), Checkstyle/SpotBugs (Java).
+- Linting MUST be enforced in CI — builds MUST fail on lint errors.
 - Lint rules MUST NOT be disabled inline without a comment explaining why.
 
 ### Conventions

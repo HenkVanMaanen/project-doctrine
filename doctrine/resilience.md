@@ -7,7 +7,7 @@ Applies to: all
 ### Circuit Breaker
 
 - Circuit breakers MUST be implemented for all external service calls.
-- Define thresholds per dependency: failure rate, slow call rate, wait duration in open state.
+- Define thresholds per dependency: failure rate (default ≥ 50%), slow call rate (default ≥ 80%), wait duration in open state (default 30s). Tune per dependency based on observed behavior.
 
 ### Retries
 
@@ -35,8 +35,8 @@ Applies to: all
 ### Graceful Shutdown
 
 - Services MUST handle SIGTERM and complete in-flight requests.
-- Shutdown timeout MUST be configured.
-- Services MUST deregister from load balancers before stopping.
+- Shutdown timeout MUST be configured (default 30s; MUST NOT exceed the container orchestrator's termination grace period).
+- Services MUST deregister from load balancers before stopping (return 503 from health checks during drain).
 
 ## See Also
 
