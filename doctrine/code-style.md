@@ -12,7 +12,7 @@ Applies to: all
 
 ### Linting
 
-- A linter MUST be configured with strict rules.
+- A linter MUST be configured with the strictest available configuration. All rules MUST be enabled by default — rules MAY only be disabled with explicit justification documented in the lint config file.
 - Linting MUST be enforced in CI — builds MUST fail on lint errors.
 - Lint rules MUST NOT be disabled inline without a comment explaining why.
 

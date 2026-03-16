@@ -151,7 +151,7 @@ After generating all documentation and config files, implement the full project 
 Set up the monorepo/project structure exactly as defined in `docs/architecture.md`:
 
 - Initialize the project manifest with all required dependencies
-- Create the directory structure from the architecture doc — use vertical slice directories (e.g., `features/links/`), not flat `routes/` + `services/` directories
+- Create the directory structure from the architecture doc — use vertical slice directories per operation (e.g., `features/create-link/`, `features/delete-link/`), not entity-grouped modules or flat `routes/` + `services/` directories
 - Install dependencies and verify they resolve
 - Every build/test/lint script or command referenced in CI workflows MUST work when invoked
 

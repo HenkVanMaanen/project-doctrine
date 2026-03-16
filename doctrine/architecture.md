@@ -11,9 +11,10 @@ Applies to: all
 ### Vertical Slice Architecture
 
 - Vertical slice architecture MUST be used as the default project structure.
-- All files for a feature MUST live in the same directory/package (e.g., `features/auth/`, `features/links/`, `features/bookmarks/` — each containing handler, service, repository, schemas, tests).
-- Slices MUST be independent — a change to one feature MUST NOT require changes in another feature's slice.
-- Do NOT use flat directory structures like `routes/`, `services/`, `repositories/` — use vertical slices where each feature directory contains all its layers.
+- A slice is a single use case or operation — NOT an entity or resource. For example, `features/create-project/`, `features/delete-project/`, `features/list-projects/` are correct slices. `features/projects/` containing all CRUD operations is NOT a vertical slice — it is an entity-grouped module.
+- Each slice MUST contain all files for that operation: handler, service/logic, validation, and tests.
+- Slices MUST be independent — a change to one slice MUST NOT require changes in another slice.
+- Do NOT use flat directory structures like `routes/`, `services/`, `repositories/` — use vertical slices where each operation directory contains all its layers.
 - Deviations from vertical slice MUST be justified in an ADR.
 
 ### Cross-Cutting Concerns
