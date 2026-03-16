@@ -151,7 +151,7 @@ After generating all documentation and config files, implement the full project 
 Set up the monorepo/project structure exactly as defined in `docs/architecture.md`:
 
 - Initialize the project manifest with all required dependencies
-- Create the directory structure from the architecture doc — use vertical slice directories per operation (e.g., `features/create-link/`, `features/delete-link/`), not entity-grouped modules or flat `routes/` + `services/` directories
+- Create the directory structure from the architecture doc — use vertical slice directories per feature (e.g., `features/auth/`, `features/links/`, `features/teams/`), not flat horizontal directories like `routes/` + `services/` + `repositories/`
 - Install dependencies and verify they resolve
 - Every build/test/lint script or command referenced in CI workflows MUST work when invoked
 
@@ -190,7 +190,7 @@ Every test type defined in `doctrine/testing.md` MUST have at least one working 
 
 Key requirements (see `doctrine/testing.md` for full details):
 
-- All 13 test types MUST have at least one file — breadth-first (one per type before deepening any type)
+- All 13 core test types MUST have at least one file — breadth-first (one per type before deepening any type). Conditional test types (snapshot, visual regression, load) MUST be implemented when applicable
 - Tests requiring infrastructure MUST use Testcontainers — no environment variable gating
 - No tautological assertions, skipped tests, or empty bodies
 - Each test type MUST use the technique appropriate to that type (not relabeled unit tests)
@@ -243,7 +243,8 @@ Walk through the generated `docs/tier1-checklist.md` item by item. For each item
 - [ ] OpenTelemetry is initialized and tracing works
 - [ ] CI workflows reference scripts/commands that exist and work
 - [ ] Architecture test config exists and rules match `docs/architecture.md`
-- [ ] All 13 test types have at least one test file: unit, integration, e2e, contract, property-based, mutation, fuzz, architecture, smoke, chaos, concurrency, data migration, infrastructure
+- [ ] All 13 core test types have at least one test file: unit, integration, e2e, contract, property-based, mutation, fuzz, architecture, smoke, chaos, concurrency, data migration, infrastructure
+- [ ] Conditional test types are implemented when applicable: snapshot/visual regression (webapp with components), load testing (when performance budgets are defined)
 - [ ] Mutation test actually invokes the mutation tool with real code mutation (not just checks config exists, not `--dryRun`, not `--list` mode)
 - [ ] Contract test makes real HTTP requests and validates responses against OpenAPI schema (not just checks YAML structure)
 - [ ] Every log line includes `traceId`, `spanId`, `tenantId`, and `service` — verify all four fields are present, not just traceId/spanId
@@ -260,6 +261,10 @@ Walk through the generated `docs/tier1-checklist.md` item by item. For each item
 - [ ] IP data cleanup job exists (cron, scheduled task, or background worker for aged data)
 - [ ] RBAC role checks are enforced on destructive operations (DELETE requires admin/owner, not just member)
 - [ ] Contract test loads the committed `openapi.yaml` static file (not the app's live spec endpoint)
+- [ ] OpenTelemetry SDK initializes before framework/application imports (verify import order in entry point)
+- [ ] RLS policies exist in migration SQL (query `pg_policies` or equivalent — `SET LOCAL` without policies provides no isolation)
+- [ ] Coverage is enforced in CI pipeline (not just set in test config — CI step MUST fail the build on coverage below 90%)
+- [ ] Session-based auth (if used): sessions stored server-side in backing service, session ID regenerated on login, sessions invalidated server-side on logout
 
 If any check fails, fix it before proceeding.
 

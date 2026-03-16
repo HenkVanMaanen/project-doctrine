@@ -12,30 +12,38 @@ Applies to: all
 ### Coverage
 
 - Code coverage MUST be >= 90% for lines, branches, functions, and statements.
-- Coverage MUST be enforced in CI — builds MUST fail below threshold.
+- Coverage MUST be enforced in CI — builds MUST fail below threshold. The CI pipeline MUST explicitly check the coverage percentage and exit non-zero if below 90%. Setting the threshold only in the test config is NOT sufficient — the CI step MUST verify and gate on it.
 - Use the appropriate coverage tool for the stack.
 
 ### Test Types
 
-All of the following MUST be implemented where applicable:
+The following test types MUST be implemented. Types marked "conditional" are REQUIRED when the condition applies.
+
+**Core test types (MUST always be implemented — 13 types):**
 
 | Type | Scope | Requirement |
 |---|---|---|
 | Unit | Individual functions/methods | MUST cover all business logic |
 | Integration | Component interactions | MUST cover all integration points |
 | End-to-end | Full user flows | MUST cover critical paths |
-| Snapshot | UI component output | MUST be used for UI components (webapp) |
-| Contract | API consumer/provider | MUST be used for inter-service APIs |
+| Contract | API consumer/provider | MUST validate responses against committed OpenAPI spec |
 | Property-based | Invariant verification | MUST cover core domain logic |
-| Mutation | Test quality validation | MUST achieve >= 90% mutation kill rate |
+| Mutation | Test quality validation | MUST achieve >= 80% mutation kill rate |
 | Fuzz | Unexpected input handling | MUST run in CI with 1-minute time limit |
-| Architecture | Structural rules enforcement | MUST enforce dependency direction and layer constraints |
-| Visual regression | Screenshot comparison | SHOULD be used for UI components (webapp) |
+| Architecture | Structural rules enforcement | MUST enforce dependency direction and slice isolation |
 | Smoke | Post-deployment verification | MUST run after every production deployment |
 | Chaos/fault injection | Resilience under failure | MUST run in staging; MUST NOT run in production without ADR |
-| Infrastructure | IaC validation | MUST validate IaC before apply |
-| Concurrency | Race conditions, thread safety | MUST be used when shared mutable state exists |
-| Data migration | Migration correctness | MUST verify schema and data integrity |
+| Concurrency | Race conditions, thread safety | MUST test concurrent requests against a real running app |
+| Data migration | Migration correctness | MUST verify schema, types, indexes, and RLS policies |
+| Infrastructure | IaC and container validation | MUST validate Dockerfile, docker-compose, and Terraform structure |
+
+**Conditional test types (MUST be implemented when applicable):**
+
+| Type | Scope | Condition |
+|---|---|---|
+| Snapshot | UI component output | Webapp with component-based UI framework |
+| Visual regression | Screenshot comparison | Webapp with visual fidelity requirements |
+| Load/performance | Throughput and latency under load | API or webapp with defined performance budgets (see `performance.md`) |
 
 ### Test Anti-Patterns
 
@@ -56,7 +64,7 @@ Each test type MUST use the technique appropriate to that type. A unit test rela
 | E2E | Use Testcontainers for DB/Redis, boot the app, execute a full flow: register → login → create resource → verify. Assert on response status and body | Mock any infrastructure, or skip conditionally |
 | Contract | Use Testcontainers for DB/Redis, boot the app, load the **committed** `openapi.yaml` static file from disk (NOT the app's live spec endpoint), make real HTTP requests, validate response status codes, headers, and body shapes match the spec | Only validate YAML/JSON structure of the spec file, or just check endpoints return non-404 |
 | Property-based | Use a property-based testing library to test domain invariants with random inputs | Use hand-picked inputs — that's a unit test |
-| Mutation | Invoke a real mutation testing tool with **actual code mutation** and assert on the exit code or mutation score. The tool MUST generate real mutants and kill them — `--dryRun`, `--list`, or any mode that skips actual mutation execution is NOT acceptable. A config file alone is NOT sufficient. The mutation score threshold MUST be ≥ 80% | Only create a config file, verify the tool is installed, or run in dry-run/list mode without generating real mutants |
+| Mutation | Invoke a real mutation testing tool with **actual code mutation** and assert on the exit code or mutation score. The tool MUST generate real mutants and kill them — `--dryRun`, `--list`, or any mode that skips actual mutation execution is NOT acceptable. A config file alone is NOT sufficient. The mutation score threshold MUST be ≥ 80%. Start with a focused subset of critical source files (validators, domain logic) to keep CI fast, then expand scope over time | Only create a config file, verify the tool is installed, or run in dry-run/list mode without generating real mutants |
 | Fuzz | Use the property-based testing library with arbitrary/random input generation to throw malformed data at parsers and validators | Use a small set of hand-crafted edge cases |
 | Architecture | Verify module dependency rules via a tool or by scanning imports. MUST fail if boundaries are crossed | Silently pass if the tool is unavailable |
 | Smoke | Boot the real app and verify critical paths respond correctly | — |
@@ -111,11 +119,24 @@ Create one test file per type first (breadth), then deepen coverage. Do NOT writ
 
 ### Data Migration Tests
 
-- Every database migration MUST have a corresponding test that:
-  - Applies the migration to a known state
-  - Asserts the expected schema changes
-  - Verifies data integrity after transformation
+- Data migration tests MUST use Testcontainers to start a clean database and apply all migrations.
+- After migrations, tests MUST verify via database introspection (not by reading SQL files):
+  - All expected tables exist (query `information_schema.tables` or equivalent)
+  - Column types are correct (query `information_schema.columns`)
+  - Indexes exist (query `pg_indexes` or equivalent)
+  - Unique constraints exist
+  - Foreign key relationships are correct
+  - RLS policies are enabled and present on tenant-scoped tables (query `pg_policies` or equivalent) — if multi-tenant
+  - Extensions are installed (e.g., `uuid-ossp`, `pgcrypto`)
+- Migrations MUST be idempotent — running them twice MUST NOT fail.
 - Migration tests MUST run in CI before deployment.
+
+### Load/Performance Tests
+
+- When performance budgets are defined (see `performance.md`), load tests MUST be implemented and run against staging.
+- Load tests MUST cover: sustained load (expected traffic), spike load (sudden bursts), and soak testing (extended duration).
+- Load test pass/fail criteria MUST be tied to response time budgets (p50, p95, p99) and error rate SLOs.
+- Load tests SHOULD run in the deploy pipeline against staging (Track E in `ci-cd.md`).
 
 ### Test Isolation
 

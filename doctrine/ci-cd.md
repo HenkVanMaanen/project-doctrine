@@ -38,7 +38,7 @@ Runs on every pull request. Gates merge to main.
 Runs after merge to main. Gates production deployment.
 
 **Track C — Deep Testing** (parallel):
-11. **Mutation Tests** — with kill rate check (>= 90%)
+11. **Mutation Tests** — with kill rate check (>= 80%)
 12. **Fuzz Tests** — with configurable time limit
 
 **Track D — Staging** (parallel with Track C):
@@ -50,10 +50,11 @@ Runs after merge to main. Gates production deployment.
 16. **E2E Tests** — against staging
 17. **Chaos Tests** — fault injection against staging
 18. **DAST** — against staging
+19. **Load Tests** — if performance budgets are defined (see `performance.md`)
 
 **Track F — Production**:
-19. **Deploy to Production** — with approval gate
-20. **Smoke Tests** — post-deployment critical path verification (< 1 min, triggers rollback on failure)
+20. **Deploy to Production** — with approval gate
+21. **Smoke Tests** — post-deployment critical path verification (< 1 min, triggers rollback on failure)
 
 ### Deployment Strategy
 
@@ -81,9 +82,14 @@ Runs after merge to main. Gates production deployment.
 - All GitHub Actions (or equivalent CI actions) MUST be pinned to real, verifiable commit SHAs, not tags (`@v4` is not acceptable). The SHAs MUST correspond to actual published releases — do NOT fabricate placeholder SHAs.
 - All config files and scripts referenced in CI workflows MUST exist and work when invoked locally.
 
+### Coverage Enforcement
+
+- The commit pipeline MUST explicitly check code coverage and fail the build if below 90% (lines, branches, functions, statements). Setting the threshold only in the test runner config is NOT sufficient — the CI step MUST parse coverage output and exit non-zero if the threshold is not met.
+
 ### Pre-Commit Hooks
 
 - Pre-commit hooks MUST be configured to run formatting, linting, and type-checking on staged files.
+- The pre-commit hook configuration file MUST be committed to version control.
 
 ## See Also
 

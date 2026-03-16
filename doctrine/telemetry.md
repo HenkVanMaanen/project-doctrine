@@ -27,6 +27,7 @@ Applies to: all
 
 - Distributed tracing via OpenTelemetry MUST be implemented.
 - OpenTelemetry MUST initialize unconditionally (not skip when an env var is missing) — in development/test it can export to a no-op or console exporter, but the SDK MUST be active so traceId/spanId are always available.
+- OpenTelemetry SDK MUST initialize **before** any framework or application code is imported. In languages where import order matters (Node.js/TypeScript, Python), the OTel setup module MUST be the first import in the entry point. In languages with explicit initialization (Go, Java, C#, Rust), OTel MUST be initialized before the framework starts accepting requests. This ensures auto-instrumentation hooks are installed before the modules they instrument are loaded.
 - All inter-service calls MUST propagate trace context ([W3C Trace Context](https://www.w3.org/TR/trace-context/)).
 - Every RFC 9457 Problem Details error response MUST include a `traceId` field.
 

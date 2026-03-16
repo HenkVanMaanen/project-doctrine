@@ -46,9 +46,10 @@ Applies to: all (Core Web Vitals for webapp only)
 
 ## See Also
 
+- `testing.md` — load/performance test type requirements
 - `telemetry.md` — SLOs/SLIs, latency metrics
 - `infrastructure.md` — CDN, health checks
-- `ci-cd.md` — performance tests in pipeline
+- `ci-cd.md` — load tests in deploy pipeline (Track E)
 
 ## Output Requirements
 

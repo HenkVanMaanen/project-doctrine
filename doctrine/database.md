@@ -27,6 +27,13 @@ Applies to: all projects with persistence
   3. Contract: remove old column/table in a subsequent deployment
 - Breaking schema changes MUST be split across multiple deployments.
 
+### Connection Management
+
+- Database connection pools MUST be bounded (maximum connections configured, not unlimited).
+- Connection pool size MUST be tunable via configuration (environment variable or config file).
+- The application MUST fail fast at startup if the database is unreachable, not silently retry indefinitely.
+- Query timeouts MUST be configured per-connection or per-statement to prevent long-running queries from blocking the pool.
+
 ### Data Seeding
 
 - Seed data for development/testing MUST be version-controlled.

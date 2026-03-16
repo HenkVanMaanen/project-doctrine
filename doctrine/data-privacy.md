@@ -52,10 +52,14 @@ The system MUST support:
 
 If the project is multi-tenant:
 
-- Tenant data isolation MUST be enforced at the data layer (e.g., row-level security, schema-per-tenant, or database-per-tenant). For RLS: `SET LOCAL app.current_tenant_id` (or equivalent) MUST be called at the start of every request — not just WHERE clause filtering.
+- Tenant data isolation MUST be enforced at the data layer (e.g., row-level security, schema-per-tenant, or database-per-tenant).
+- For RLS implementations, **both** of the following are required:
+  - **Database-level policies**: RLS policies MUST be defined in migration SQL (e.g., `ALTER TABLE ... ENABLE ROW LEVEL SECURITY; CREATE POLICY ...`). These policies MUST filter rows based on the session variable. The policies MUST be verifiable by querying `pg_policies` (or equivalent) in data migration tests.
+  - **Per-request activation**: `SET LOCAL app.current_tenant_id` (or equivalent) MUST be called at the start of every request transaction — not just WHERE clause filtering. This sets the session variable that RLS policies evaluate.
+- Having only `SET LOCAL` without database-level policies provides NO isolation. Having only policies without `SET LOCAL` means the variable is never set. Both MUST exist.
 - Tenant context MUST be propagated through all layers of the application.
 - Cross-tenant data access MUST be impossible by default — any exception requires an ADR.
-- Tenant isolation MUST be verified through automated tests.
+- Tenant isolation MUST be verified through automated tests (both data migration tests for policy existence and integration tests for runtime isolation).
 
 ### Data Protection Impact Assessment
 

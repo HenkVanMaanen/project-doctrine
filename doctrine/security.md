@@ -16,12 +16,16 @@ Applies to: all
 
 ### Authentication
 
-- OAuth 2.0 ([RFC 6749](https://www.rfc-editor.org/rfc/rfc6749)) and OpenID Connect ([spec](https://openid.net/specs/openid-connect-core-1_0.html)) MUST be used.
-- JWTs ([RFC 7519](https://www.rfc-editor.org/rfc/rfc7519)) MUST be used for stateless session tokens.
-- Token lifetimes MUST be short-lived with refresh token rotation.
-- Refresh tokens MUST be bound to the client and rotated on use.
-- Refresh token rotation MUST issue a new token on every use, invalidate the old one, and detect reuse (family invalidation).
-- Account lockout MUST be implemented: lock accounts after N consecutive failed login attempts.
+Choose one of the following authentication strategies per project and document the rationale in an ADR:
+
+- **Token-based (API, SPA)**: OAuth 2.0 ([RFC 6749](https://www.rfc-editor.org/rfc/rfc6749)) and OpenID Connect ([spec](https://openid.net/specs/openid-connect-core-1_0.html)) with JWTs ([RFC 7519](https://www.rfc-editor.org/rfc/rfc7519)) for stateless session tokens.
+- **Session-based (server-rendered webapp)**: Server-side sessions stored in a backing service (Redis or database), referenced by an opaque session ID in a secure cookie. Session data MUST NOT be stored in the application process (see `12-factor.md`).
+
+Regardless of strategy, the following MUST be implemented:
+
+- **Token-based**: Token lifetimes MUST be short-lived (≤ 15 minutes for access tokens). Refresh tokens MUST be bound to the client and rotated on use. Refresh token rotation MUST issue a new token on every use, invalidate the old one, and detect reuse (family invalidation).
+- **Session-based**: Sessions MUST have a defined TTL. Session IDs MUST be regenerated on login (to prevent session fixation). Sessions MUST be invalidated on logout (server-side deletion, not just cookie removal).
+- Account lockout MUST be implemented: lock accounts after N consecutive failed login attempts (recommended: 5 attempts, 15-minute lockout).
 - Password hashing MUST use the strongest available algorithm: argon2id (preferred), bcrypt (cost ≥ 12), or scrypt. SHA-256, MD5, and plain hashing MUST NOT be used for passwords.
 - For API key authentication: HMAC-SHA256 MUST be used (a keyed hash, e.g., `HMAC(key, secret)`) — NOT a plain `SHA-256(key)` digest. The HMAC secret MUST come from configuration, not be hardcoded.
 
