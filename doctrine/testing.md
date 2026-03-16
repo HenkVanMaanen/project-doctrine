@@ -13,7 +13,7 @@ Applies to: all
 
 - Code coverage MUST be >= 90% for lines, branches, functions, and statements.
 - Coverage MUST be enforced in CI — builds MUST fail below threshold.
-- Use the appropriate coverage tool for the stack (e.g., vitest/c8/istanbul for TypeScript, tarpaulin/llvm-cov for Rust, `go test -cover` for Go, dotnet-coverage for C#, JaCoCo for Java).
+- Use the appropriate coverage tool for the stack.
 
 ### Test Types
 
@@ -41,8 +41,8 @@ All of the following MUST be implemented where applicable:
 
 The following patterns MUST NOT appear in any test file:
 
-- Tautological assertions: `expect(true).toBe(true)`, `assert!(true)`, `Assert.True(true)`, or equivalent in any language
-- Skipped tests: `describe.skip`, `it.skip`, `#[ignore]`, `[Fact(Skip=...)]`, `t.Skip()`, or tests gated behind environment variables
+- Tautological assertions (e.g., asserting a literal `true` is true, or any assertion that cannot fail)
+- Skipped tests or tests gated behind environment variables
 - Empty test bodies, `// TODO` placeholders, or tests that only log output without asserting
 
 Each test type MUST use the technique appropriate to that type. A unit test relabeled as "concurrency" is not a concurrency test. A test that reads SQL file text is not a migration test. A test that validates a YAML schema is not a contract test.
@@ -55,19 +55,19 @@ Each test type MUST use the technique appropriate to that type. A unit test rela
 | Integration | Use Testcontainers to start PostgreSQL and Redis, run migrations, test auth flows and CRUD against the real database. Every test MUST make real SQL queries and assert on real query results | Mock the database, or skip when no DB is available |
 | E2E | Use Testcontainers for DB/Redis, boot the app, execute a full flow: register → login → create resource → verify. Assert on response status and body | Mock any infrastructure, or skip conditionally |
 | Contract | Use Testcontainers for DB/Redis, boot the app, load the **committed** `openapi.yaml` static file from disk (NOT the app's live spec endpoint), make real HTTP requests, validate response status codes, headers, and body shapes match the spec | Only validate YAML/JSON structure of the spec file, or just check endpoints return non-404 |
-| Property-based | Use a property-based testing library (fast-check, proptest, FsCheck, jqwik, gopter) to test domain invariants with random inputs | Use hand-picked inputs — that's a unit test |
-| Mutation | Invoke a real mutation testing tool (Stryker, cargo-mutants, go-mutesting, Stryker.NET, PITest) with **actual code mutation** and assert on the exit code or mutation score. The tool MUST generate real mutants and kill them — `--dryRun`, `--list`, or any mode that skips actual mutation execution is NOT acceptable. A config file alone is NOT sufficient. The mutation score threshold MUST be ≥ 80% | Only create a config file, verify the tool is installed, or run in dry-run/list mode without generating real mutants |
+| Property-based | Use a property-based testing library to test domain invariants with random inputs | Use hand-picked inputs — that's a unit test |
+| Mutation | Invoke a real mutation testing tool with **actual code mutation** and assert on the exit code or mutation score. The tool MUST generate real mutants and kill them — `--dryRun`, `--list`, or any mode that skips actual mutation execution is NOT acceptable. A config file alone is NOT sufficient. The mutation score threshold MUST be ≥ 80% | Only create a config file, verify the tool is installed, or run in dry-run/list mode without generating real mutants |
 | Fuzz | Use the property-based testing library with arbitrary/random input generation to throw malformed data at parsers and validators | Use a small set of hand-crafted edge cases |
-| Architecture | Verify module dependency rules via a tool (dependency-cruiser, ArchUnit, etc.) or by scanning imports. MUST fail if boundaries are crossed | Silently pass if the tool is unavailable |
+| Architecture | Verify module dependency rules via a tool or by scanning imports. MUST fail if boundaries are crossed | Silently pass if the tool is unavailable |
 | Smoke | Boot the real app and verify critical paths respond correctly | — |
 | Chaos | Simulate real infrastructure failure: kill a Redis connection, inject latency, or use Testcontainers to stop a container. App MUST degrade gracefully | Only mock a module to throw |
-| Concurrency | Make concurrent requests to a real running app using actual parallelism (goroutines, tokio::spawn, Task.WhenAll, Promise.all) | Generate values in a loop and check uniqueness |
+| Concurrency | Make concurrent requests to a real running app using actual parallelism | Generate values in a loop and check uniqueness |
 | Data migration | Use Testcontainers to start empty PostgreSQL, run migrations, query `information_schema` and `pg_policies` to verify tables, types, indexes, and RLS policies | Only read SQL file content, or skip when no DB is available |
 | Infrastructure | Verify Dockerfile structure (multi-stage, non-root, HEALTHCHECK), docker-compose services, and Terraform files | — |
 
 ### Testcontainers
 
-Tests requiring infrastructure (DB, Redis) MUST use Testcontainers (available for all major languages: testcontainers for Node.js, testcontainers-rs for Rust, testcontainers-go for Go, Testcontainers.* for C#/Java). Do NOT gate tests behind environment variables — if the test exists, it MUST run as part of the standard test command.
+Tests requiring infrastructure (DB, Redis) MUST use Testcontainers. Do NOT gate tests behind environment variables — if the test exists, it MUST run as part of the standard test command.
 
 ### Implementation Order
 
@@ -81,7 +81,7 @@ Create one test file per type first (breadth), then deepen coverage. Do NOT writ
   - Layer isolation (e.g., controllers MUST NOT import repositories directly)
   - Naming conventions per architectural boundaries
 - Architecture test failures MUST break the build.
-- Choose tooling per stack (e.g., ArchUnit, NetArchTest, dependency-cruiser).
+- Choose tooling appropriate for the stack.
 
 ### Smoke Tests
 
@@ -99,14 +99,14 @@ Create one test file per type first (breadth), then deepen coverage. Do NOT writ
 
 ### Infrastructure Tests
 
-- IaC MUST be validated before apply (e.g., `terraform plan` assertions, manifest validation).
+- IaC MUST be validated before apply.
 - Container images MUST be tested for: correct base image, non-root user, expected ports, health check endpoints.
-- Choose tooling per stack (e.g., Terratest, conftest, kubeval).
+- Choose tooling appropriate for the stack.
 
 ### Concurrency Tests
 
 - When the project has shared mutable state, concurrency tests MUST verify thread safety.
-- Race condition detection MUST be enabled where the stack supports it (e.g., Go `-race`, thread sanitizer, JCStress).
+- Race condition detection MUST be enabled where the stack supports it.
 - Deadlock detection SHOULD be included in integration tests.
 
 ### Data Migration Tests
@@ -126,7 +126,7 @@ Create one test file per type first (breadth), then deepen coverage. Do NOT writ
 ### Test Data
 
 - Test data MUST NOT contain real user data.
-- Factories or builders MUST be used with randomized data (e.g., `@faker-js/faker`, `fake` crate, `go-faker`, `Bogus` for C#, `javaFaker`), not hard-coded fixtures.
+- Factories or builders MUST be used with randomized data, not hard-coded fixtures.
 - Test data MUST be isolated per test suite and cleaned up after execution.
 
 ## See Also

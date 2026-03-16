@@ -98,8 +98,8 @@ Alongside docs, generate applicable config files in the project root. This step 
 - `.editorconfig`
 - `.gitignore`
 - `Dockerfile` and `docker-compose.yml`
-- Formatter config (e.g., `.prettierrc`, `rustfmt.toml`)
-- Linter config (e.g., `.eslintrc.json`, `clippy.toml`)
+- Formatter config
+- Linter config
 - Pre-commit hook config
 - PR template (`.github/pull_request_template.md` or equivalent)
 - `.env.example`
@@ -150,9 +150,9 @@ After generating all documentation and config files, implement the full project 
 
 Set up the monorepo/project structure exactly as defined in `docs/architecture.md`:
 
-- Initialize the project manifest (`package.json`, `Cargo.toml`, `go.mod`, `*.csproj`, etc.) with all required dependencies
+- Initialize the project manifest with all required dependencies
 - Create the directory structure from the architecture doc — use vertical slice directories (e.g., `features/links/`), not flat `routes/` + `services/` directories
-- Install dependencies and verify they resolve (e.g., `pnpm install`, `cargo build`, `go mod tidy`, `dotnet restore`)
+- Install dependencies and verify they resolve
 - Every build/test/lint script or command referenced in CI workflows MUST work when invoked
 
 #### 10.2: Implement Tier 1 Foundations
@@ -215,24 +215,13 @@ Implement all infrastructure requirements from `doctrine/infrastructure.md`:
 
 #### 10.8: Build Verification
 
-Run the equivalent of ALL the following for your stack and fix any failures before reporting:
+Run ALL of the following steps using the stack's idiomatic commands and fix any failures before reporting:
 
-```
-# Install dependencies
-pnpm install / cargo build / go mod tidy / dotnet restore
-
-# Compile / build
-pnpm build / cargo build --release / go build ./... / dotnet build
-
-# Lint (zero errors)
-pnpm lint / cargo clippy -- -D warnings / golangci-lint run / dotnet format --verify-no-changes
-
-# Run all tests
-pnpm test / cargo test / go test ./... / dotnet test
-
-# Coverage ≥ 90%
-pnpm test:coverage / cargo tarpaulin / go test -cover / dotnet test --collect:"XPlat Code Coverage"
-```
+1. **Install dependencies** — resolve and lock all dependencies
+2. **Compile / build** — full production build with zero errors
+3. **Lint** — run the configured linter with zero errors
+4. **Run all tests** — execute the full test suite
+5. **Coverage** — verify coverage ≥ 90% for lines, branches, functions, and statements
 
 If any command fails, fix the code and re-run. Do NOT report success with failing tests.
 
@@ -258,7 +247,7 @@ Walk through the generated `docs/tier1-checklist.md` item by item. For each item
 - [ ] Mutation test actually invokes the mutation tool with real code mutation (not just checks config exists, not `--dryRun`, not `--list` mode)
 - [ ] Contract test makes real HTTP requests and validates responses against OpenAPI schema (not just checks YAML structure)
 - [ ] Every log line includes `traceId`, `spanId`, `tenantId`, and `service` — verify all four fields are present, not just traceId/spanId
-- [ ] `tenantId` is logged as empty string `""` (not null/None/nil/omitted) for unauthenticated requests — test by checking a login or health check log entry
+- [ ] `tenantId` is logged as empty string `""` (not null or omitted) for unauthenticated requests — test by checking a login or health check log entry
 - [ ] Coverage threshold is set to 90% (not 80% or lower) in both test config and CI pipeline
 - [ ] OpenAPI spec exists as a committed static file and matches implemented routes
 - [ ] GitHub Actions SHAs are real (not fabricated placeholders)

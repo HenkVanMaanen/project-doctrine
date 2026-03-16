@@ -9,7 +9,7 @@ Applies to: all projects with persistence
 - All schema changes MUST be managed through versioned migrations.
 - Migrations MUST be forward-only in production (no down migrations).
 - Each migration MUST be idempotent.
-- Migration tooling MUST be chosen per stack and run automatically on deployment. Recommended tools: Knex/Prisma/Drizzle (TypeScript), sqlx/diesel (Rust), go-migrate/goose (Go), Alembic (Python), Flyway/Liquibase (Java), EF Core Migrations (C#).
+- Migration tooling MUST be chosen per stack and run automatically on deployment.
 - Migration file naming MUST use a consistent convention (e.g., `V001__create_users.sql`, `001_initial_schema.up.sql`, or framework-default naming).
 - Idempotent migrations MUST use `IF NOT EXISTS` / `IF EXISTS` guards for DDL operations where the database supports it.
 

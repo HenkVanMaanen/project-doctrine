@@ -13,7 +13,7 @@ All twelve factors MUST be applied. Key decisions for this doctrine:
 - Config MUST be stored in environment variables or a secret manager.
 - Environment variables are acceptable for non-sensitive config.
 - Sensitive values MUST use a secret manager. See `secrets.md`.
-- All required config MUST be validated at application startup — the application MUST fail fast with a clear error if required config is missing, malformed, or out of expected range. Use the stack's idiomatic validation (e.g., Zod for TypeScript, validator for Go, Pydantic for Python, FluentValidation for C#).
+- All required config MUST be validated at application startup — the application MUST fail fast with a clear error if required config is missing, malformed, or out of expected range. Use the stack's idiomatic validation library.
 
 ### VI. Processes
 

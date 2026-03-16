@@ -10,11 +10,11 @@ Applies to: all
 
 ### Logging
 
-- Structured JSON logging MUST be used via the stack's idiomatic structured logger (e.g., pino for Node.js, tracing for Rust, zerolog/zap for Go, Serilog for C#, Logback/SLF4J for Java).
+- Structured JSON logging MUST be used via the stack's idiomatic structured logger.
 - Log levels MUST follow syslog severity ([RFC 5424](https://www.rfc-editor.org/rfc/rfc5424)).
 - Every log entry MUST include ALL FOUR of these fields: `traceId`, `spanId`, `tenantId`, and `service`. The logger MUST extract trace context from OpenTelemetry's active span — do NOT log static placeholder values.
-- `tenantId` MUST be injected into the logging context per-request (e.g., via MDC, LogContext, context vars, or span attributes) — defining an enricher/processor class without registering it in the logging pipeline is not sufficient.
-- **IMPORTANT**: For unauthenticated requests (login, register, health checks, public endpoints), `tenantId` MUST be logged as an explicit empty string `""`, NOT omitted, NOT `null`, NOT `None`, NOT `nil`. The field MUST always be present in every log entry regardless of authentication state. This is the most commonly missed requirement — verify it explicitly.
+- `tenantId` MUST be injected into the logging context per-request — defining an enricher/processor class without registering it in the logging pipeline is not sufficient.
+- **IMPORTANT**: For unauthenticated requests (login, register, health checks, public endpoints), `tenantId` MUST be logged as an explicit empty string `""`, NOT omitted and NOT null. The field MUST always be present in every log entry regardless of authentication state. This is the most commonly missed requirement — verify it explicitly.
 - PII MUST NOT appear in logs.
 
 ### Metrics

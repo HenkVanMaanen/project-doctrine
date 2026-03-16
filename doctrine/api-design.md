@@ -22,7 +22,7 @@ Applies to: API, webapp
 
 - REST APIs MUST have an OpenAPI 3.1 specification.
 - The spec MUST be the source of truth — code MUST be generated from or validated against it.
-- A **committed** `openapi.yaml` (or `openapi.json`) static file MUST exist in the project repository so contract tests can validate against it without booting the application. Even if the framework serves the spec dynamically (e.g., SpringDoc, FastAPI `/docs`), the static file MUST be committed.
+- A **committed** `openapi.yaml` (or `openapi.json`) static file MUST exist in the project repository so contract tests can validate against it without booting the application. Even if the framework serves the spec dynamically, the static file MUST be committed.
 - GraphQL APIs MUST have a schema-first design.
 
 ### Versioning

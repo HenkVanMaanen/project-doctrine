@@ -103,7 +103,7 @@ If the project handles file uploads, the following MUST be applied (per [OWASP F
 - All external input MUST be validated at system boundaries.
 - Apply OWASP input validation guidelines.
 - Parameterized queries MUST be used for all database operations.
-- Input validation MUST use the stack's idiomatic validation library (e.g., Zod, FluentValidation, serde + custom validation). Path parameters, query parameters, and request bodies MUST all be validated at every route boundary.
+- Input validation MUST use the stack's idiomatic validation library. Path parameters, query parameters, and request bodies MUST all be validated at every route boundary.
 - SSRF protection MUST be implemented: URL validation MUST block private IP ranges (10.x, 172.16-31.x, 192.168.x, 127.x), localhost, and cloud metadata endpoints (169.254.169.254).
 
 ### Rate Limiting

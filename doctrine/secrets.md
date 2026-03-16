@@ -13,7 +13,7 @@ Applies to: all
 
 ### Scanning
 
-- Secret scanning MUST run in CI to prevent accidental commits. Recommended tools: gitleaks, detect-secrets, TruffleHog, or GitGuardian.
+- Secret scanning MUST run in CI to prevent accidental commits.
 - Pre-commit hooks MUST scan for secrets locally using the same scanning tool as CI.
 
 ### Rotation

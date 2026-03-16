@@ -83,7 +83,7 @@ Runs after merge to main. Gates production deployment.
 
 ### Pre-Commit Hooks
 
-- Pre-commit hooks MUST be configured (e.g., Husky, `.pre-commit-config.yaml`, lefthook) to run formatting, linting, and type-checking on staged files.
+- Pre-commit hooks MUST be configured to run formatting, linting, and type-checking on staged files.
 
 ## See Also
 

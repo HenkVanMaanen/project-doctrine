@@ -23,7 +23,7 @@ Applies to: all (Core Web Vitals for webapp only)
 - Response time budgets MUST be defined with explicit targets:
   - p50 ≤ 100ms (typical API), p95 ≤ 500ms, p99 ≤ 1000ms
   - Adjust based on operation complexity (DB-heavy queries may have higher budgets, documented in the performance doc)
-- Performance/load tests MUST run in CI against staging. Recommended tools: k6 (preferred), Locust (Python), Vegeta (Go), Artillery (Node.js), Gatling (Java).
+- Performance/load tests MUST run in CI against staging.
 
 ### Load Testing
 
