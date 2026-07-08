@@ -97,8 +97,10 @@ These MUST be answered before generation can proceed:
 - **Monorepo or polyrepo**: single repo or multiple? (default: monorepo)
 - **Offline/PWA requirements?** (default: no)
 - **Expected traffic patterns**: sustained load, peak spikes, seasonal variation (default: even load, 2x peak)
-- **Content inventory (webapp)**: will the product include pre-recorded or live video, audio-only content, or media requiring captions/transcripts? (default: none) — this determines which media accessibility criteria apply (see `doctrine/accessibility.md`)
+- **Content inventory (webapp)**: will the product include pre-recorded or live video, audio-only content, or media requiring captions/transcripts? Time-limited functionality beyond session expiry? Jargon-heavy or abbreviation-heavy content? (default: none / no / no) — these facts decide conditional accessibility criteria (see `doctrine/accessibility.md`); a missing fact defaults the criterion to required, never N/A
+- **Supported languages/locales**: which languages will the UI ship in? (default: English only) — drives i18n scope and the per-language readability formula (`doctrine/accessibility.md`)
 - **AI/LLM features**: will the product call LLMs or process model output? (default: no)
+- **AI/LLM provider(s)** — REQUIRED when AI/LLM features = yes: which provider(s), their data-retention tier, training-use setting, and EU data residency. The per-provider data-protection posture in `ai-llm.md` cannot be generated without these facts; a generation agent MUST NOT choose the provider itself.
 - **Asynchronous processing**: message queues, background jobs, event-driven flows? (default: none beyond scheduled cleanup jobs)
 
 ## Phase 2 — Parallel Research Fan-Out
@@ -142,11 +144,11 @@ Each generated doc MUST:
 
 - Be concise and actionable
 - Specify stack-specific tooling choices
-- Contain measurable acceptance criteria
+- Contain measurable acceptance criteria, each stating its verification method (Compliance Model)
 - Use RFC 2119 keywords
 - Link to standards rather than repeating their content
 
-Each generation agent receives: the fact sheet, its source doctrine file paths, the standards agent's version report, and (existing repos) the relevant gap list. Skip docs whose applicability facts are false.
+Each generation agent receives: the fact sheet, its source doctrine file paths, the standards agent's version report, (existing repos) the relevant gap list, and the Compliance Model section of this skill — include it in every generation prompt; a doctrine file alone does not carry the verification-method mandate.
 
 In the same fan-out, also launch:
 
@@ -163,7 +165,9 @@ In the same fan-out, also launch:
   - `LICENSE` — derived from the Discovery answer: [MIT](https://opensource.org/licenses/MIT) (or the user's chosen OSI-approved license) for open-source projects; a proprietary all-rights-reserved notice for proprietary projects
 - **Checklist agent** — generate `docs/tier1-checklist.md`: a checklist covering all Tier 1 (non-negotiable) requirements from `security.md`, `data-privacy.md`, `testing.md`, and — when AI/LLM features exist — `ai-llm.md`. This checklist MUST be reviewed and confirmed before implementation begins.
 
-Write `docs/waivers.md` (empty register) and `docs/discovery.md` yourself — they are trivial. Generated artifacts MUST follow the templates shipped with the doctrine: `templates/waivers.md` (register format), `templates/adr.md` (ADR format), `templates/postmortem.md` (referenced by the incident-response doc). Pass template paths to the relevant generation agents.
+Write `docs/waivers.md` (empty register) and `docs/discovery.md` yourself — they are trivial.
+
+Generation agents MUST also draft the ADRs their source doctrine requires (auth strategy, authorization model, REST vs. GraphQL, API versioning, erasure process, …) as `docs/adr/DRAFT-<topic>.md` using `templates/adr.md`. Parallel agents cannot safely take sequential numbers — the orchestrator assigns `NNNN` numbering to the drafts during Phase 4. Generated artifacts MUST follow the templates shipped with the doctrine: `templates/waivers.md` (register format), `templates/adr.md` (ADR format), `templates/postmortem.md` (referenced by the incident-response doc). Pass template paths to the relevant generation agents.
 
 ## Phase 4 — Consistency Validation (parallel checkers)
 

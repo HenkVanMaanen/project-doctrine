@@ -44,7 +44,7 @@ Applies to: all with AI/LLM features (established as a Discovery fact)
 
 - Model API calls MUST have explicit timeouts, bounded retries, and a defined fallback behavior on provider outage (see `resilience.md`).
 - Per-request and per-user token budgets MUST be enforced; token usage MUST be recorded as a metric and cost per request tracked (see `finops.md`).
-- AI endpoints MUST have rate limits at least as strict as authentication endpoints (`security.md`).
+- AI endpoints MUST have rate limits at least as strict as authentication endpoints (`security.md`). An **AI endpoint** is any route whose handling can trigger a model call, synchronously or via an enqueued job. For asynchronous architectures the rate limit applies to the triggering endpoint, and queue-side per-user/per-tenant budget caps MUST additionally bound total model spend.
 - The model identifier MUST be pinned in configuration — never an implicit "latest".
 
 ### Evaluation and Testing
@@ -73,7 +73,7 @@ The generated AI/LLM doc MUST:
 
 - Define every trust boundary where model input or output crosses into the system, with a Mermaid diagram
 - Specify the output validation schema approach and sanitization points
-- List every tool exposed to the model with its privilege scope and confirmation requirements
+- List every tool exposed to the model with its privilege scope and confirmation requirements — or state explicitly that no tools are exposed and how that is enforced (e.g., no tools parameter in the model client wrapper; tool-use responses rejected)
 - Define the data protection posture per provider (retention, training use, DPA, redaction)
 - Define eval datasets, thresholds, and the CI gate for prompt/model changes
 - Define token budgets, rate limits, and fallback behavior per model-backed feature

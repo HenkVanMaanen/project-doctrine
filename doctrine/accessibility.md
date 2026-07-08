@@ -34,11 +34,16 @@ The following Level AAA criteria are achievable by construction in any webapp an
 | 2.4.8 Location | User's location within the site is indicated (e.g., breadcrumbs, active nav state) |
 | 2.4.9 Link Purpose (Link Only) | Link purpose clear from link text alone |
 | 2.4.10 Section Headings | Content organized with section headings |
+| 2.4.12 Focus Not Obscured (Enhanced) | No part of the focused component is hidden by author-created content |
 | 2.4.13 Focus Appearance | Focus indicator meets enhanced size and contrast requirements |
 | 2.5.5 Target Size (Enhanced) | Pointer targets ≥ 44×44 CSS px (inline links exempt per the criterion) |
 | 2.5.6 Concurrent Input Mechanisms | Do not restrict input modality (touch, keyboard, mouse) |
 | 3.2.5 Change on Request | Context changes only on explicit user request |
+| 3.3.5 Help | Context-sensitive help is available for user input |
+| 3.3.6 Error Prevention (All) | All user submissions are reversible, checked, or confirmed |
 | 3.3.9 Accessible Authentication (Enhanced) | No cognitive function test in any authentication step |
+
+This unconditional set plus the conditional table below covers all 31 WCAG 2.2 AAA criteria — the generated conformance table MUST account for every one of them.
 
 ### AAA criteria gated on content facts — conditional
 
@@ -63,6 +68,8 @@ Applicability of each criterion below is a fact from the Discovery content inven
 ## Requirements
 
 - A **conformance table** covering every WCAG A/AA/AAA success criterion MUST be generated in the project accessibility doc, with per-criterion status: `required` or `N/A (<fact>)`. Implementing agents MUST NOT mark a criterion N/A based on effort — only based on a content-inventory fact.
+- If a fact needed to decide a conditional criterion was not established during Discovery, the criterion defaults to `required` — the absence of a fact is never grounds for N/A. Flag the missing fact for a Discovery follow-up.
+- A and AA criteria remain `required` even when their subject content is absent (e.g., the media criteria in a product with no video): record them as vacuously satisfied with the fact noted. They become materially applicable the moment such content is added.
 - Automated accessibility testing MUST run in CI and MUST fail the build on violations of automatable criteria.
 - Automated testing MUST NOT be treated as sufficient — it typically catches only 30–50% of accessibility issues. Criteria requiring manual verification MUST be documented in a manual audit checklist with assigned responsibility, and a manual audit MUST be completed and documented before launch.
 - Criteria requiring external resources (e.g., sign language interpretation, extended audio description production) MUST be identified during Discovery and budgeted for — they are not waivable by the implementing agent.
@@ -77,6 +84,7 @@ Applicability of each criterion below is a fact from the Discovery content inven
 - The threshold is WCAG's own bar: lower secondary education level. Text scoring above it makes criterion 3.1.5 applicable as a fact — the implementing agent MUST then either simplify the text until the score passes, or provide a simplified supplemental version.
 - The readability score gates only the *trigger*; whether a simplified supplement adequately conveys the content is a manual audit item and MUST appear in the manual checklist.
 - Legal text, quoted material, and proper names MAY be excluded from scoring; exclusions MUST be listed in the generated accessibility doc, not applied silently.
+- User-facing text generated at runtime (e.g., LLM output — see `ai-llm.md`) cannot be scored in CI: an equivalent runtime readability control MUST be applied (same formula and threshold at generation/response time), and sampled scores MUST be monitored.
 
 ## See Also
 

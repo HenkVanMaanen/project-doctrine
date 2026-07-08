@@ -2,24 +2,24 @@
 
 Baseline versions of all standards referenced in this doctrine. LLMs SHOULD fetch the latest version at generation time. If fetching fails or the current version cannot be determined, use these as the known-good baseline.
 
-Last verified: 2026-07-08
+Last verified: 2026-07-08. The "last verified" date MUST only be updated together with an actual re-verification of the entries — never stamped automatically. Entries below marked "verify" were flagged as possibly newer at the last check.
 
 ## Standards
 
 | Standard | Version / Date | URL |
 |---|---|---|
-| OWASP Top 10 | 2021 | https://owasp.org/www-project-top-ten/ |
-| OWASP ASVS | 4.0.3 | https://owasp.org/www-project-application-security-verification-standard/ |
+| OWASP Top 10 | 2025 (restructured vs 2021: SSRF folded into A01, adds Software Supply Chain Failures and Mishandling of Exceptional Conditions) | https://owasp.org/www-project-top-ten/ |
+| OWASP ASVS | 5.0 (2025) | https://owasp.org/www-project-application-security-verification-standard/ |
 | WCAG | 2.2 (2023-10-05) | https://www.w3.org/TR/WCAG22/ |
-| OpenAPI | 3.1.0 | https://spec.openapis.org/oas/v3.1.0 |
+| OpenAPI | 3.1.0 (verify: 3.2 may exist) | https://spec.openapis.org/oas/v3.1.0 |
 | OpenTelemetry | 1.x (stable) | https://opentelemetry.io/docs/ |
 | Semantic Versioning | 2.0.0 | https://semver.org/ |
 | Conventional Commits | 1.0.0 | https://www.conventionalcommits.org/en/v1.0.0/ |
 | Keep a Changelog | 1.1.0 | https://keepachangelog.com/en/1.1.0/ |
 | C4 Model | — | https://c4model.com/ |
 | ICU Message Format | — | https://unicode-org.github.io/icu/userguide/format_parse/messages/ |
-| Unicode CLDR | 44 | https://cldr.unicode.org/ |
-| SPDX | 2.3 (ISO/IEC 5962:2021) | https://spdx.dev/ |
+| Unicode CLDR | 44 (verify: likely newer) | https://cldr.unicode.org/ |
+| SPDX | 2.3 (ISO/IEC 5962:2021; verify: 3.0 released 2024) | https://spdx.dev/ |
 | FinOps Framework | — | https://www.finops.org/framework/ |
 | 12-Factor App | — | https://12factor.net |
 | DORA Metrics | Five metrics (2025) | https://dora.dev/guides/dora-metrics/ |
@@ -28,6 +28,18 @@ Last verified: 2026-07-08
 | SPACE Framework | 2021 (ACM Queue) | https://queue.acm.org/detail.cfm?id=3454124 |
 | DevEx Framework | 2023 (ACM Queue) | https://queue.acm.org/detail.cfm?id=3595878 |
 | AuthZEN | 1.0 (draft) | https://openid.net/specs/openid-authzen-authorization-api-1_0.html |
+| OWASP Top 10 for LLM Applications | 2025 | https://genai.owasp.org/llm-top-10/ |
+| NIST AI RMF | 1.0 (2023) + Generative AI Profile NIST AI 600-1 (2024) | https://www.nist.gov/itl/ai-risk-management-framework |
+| EU AI Act | Regulation (EU) 2024/1689 | https://artificialintelligenceact.eu/ |
+| EN 301 549 (European Accessibility Act baseline) | V3.2.1 (2021) | https://www.etsi.org/deliver/etsi_en/301500_301599/301549/ |
+| SLSA | v1.0 | https://slsa.dev/ |
+| NIST SSDF | SP 800-218 v1.1 | https://csrc.nist.gov/pubs/sp/800/218/final |
+| OpenSSF Scorecard | — (living) | https://scorecard.dev/ |
+| Sigstore | — (living) | https://www.sigstore.dev/ |
+| in-toto attestations | 1.0 | https://in-toto.io/ |
+| CloudEvents | 1.0.2 | https://cloudevents.io/ |
+| NIST TLS guidance | SP 800-52 Rev 2 | https://csrc.nist.gov/pubs/sp/800/52/r2/final |
+| NIST key management | SP 800-175B Rev 1 | https://csrc.nist.gov/pubs/sp/800/175/b/r1/final |
 | JSON:API | 1.1 | https://jsonapi.org/format/ |
 | GraphQL | October 2021 | https://spec.graphql.org/ |
 | EditorConfig | — | https://editorconfig.org/ |
@@ -40,7 +52,7 @@ Last verified: 2026-07-08
 | RFC 2119 | Key words for use in RFCs | Standard |
 | RFC 3339 | Date and Time on the Internet | Standard |
 | RFC 5424 | Syslog Protocol | Standard |
-| RFC 6265bis | Cookies | Draft — check for finalization |
+| RFC 6265bis | Cookies | Draft (rev 22 as of 2026-07) — check for finalization |
 | RFC 6749 | OAuth 2.0 Authorization Framework | Standard |
 | RFC 7519 | JSON Web Token (JWT) | Standard |
 | RFC 8594 | Sunset Header | Standard |
