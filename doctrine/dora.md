@@ -39,6 +39,7 @@ Research consistently shows throughput and stability are NOT a trade-off: top pe
 - Trends MUST be tracked over time — point-in-time snapshots are insufficient.
 - Metrics MUST be measured per application/service. They MUST NOT be used to compare unrelated teams or systems.
 - Delivery metrics MUST NOT be used to evaluate individual performance — per the SPACE research, activity metrics used as individual targets invite gaming (Goodhart's law) and degrade the outcomes they were meant to improve.
+- No single metric may stand alone: per SPACE, productivity/delivery health MUST be assessed across at least two dimensions, mixing system-collected data (pipelines, VCS) with self-reported data (developer surveys) — each corrects the other's blind spots.
 
 ### Targets
 
@@ -53,6 +54,10 @@ Findings from the 2024–2025 State of DevOps reports:
 - AI is an **amplifier**, not a substitute for sound practice: it accelerates teams with strong foundations (small batches, robust testing, loosely coupled architecture) and magnifies dysfunction in teams without them. AI adoption without these foundations measurably reduces delivery stability.
 - AI-assisted development tends to increase change batch size. AI-generated changes MUST comply with the same batch-size limits as human-written changes (see `git-workflow.md`).
 - AI-generated code MUST pass the same review, testing, and quality gates as human-written code — no gate may be waived because a change was machine-generated.
+
+### Documentation as a Multiplier
+
+The DORA 2023 report found quality internal documentation amplifies the effect of every other technical capability on organizational performance — trunk-based development, continuous integration, and reliability practices all deliver measurably more when documentation is good. Documentation requirements (`documentation.md`) are therefore delivery-performance requirements, not hygiene.
 
 ### Developer Experience
 

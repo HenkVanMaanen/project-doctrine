@@ -27,6 +27,9 @@ Applies to: all
 ### Code Review
 
 - Every PR MUST receive a first review response within one business day; small PRs SHOULD be reviewed within hours. Slow review turnaround is a leading cause of long change lead time (`dora.md`).
+- The author MUST self-review the diff and write a description covering what changed and why (linked to its issue) before requesting review — per Google's engineering practices, this catches a meaningful share of defects before a reviewer spends time.
+- One approving reviewer is required for routine changes; changes to authentication, authorization, migrations, or payment paths SHOULD get two. Review research (Rigby & Bird) shows two reviewers is the effectiveness ceiling — requiring more adds latency, not defect detection.
+- Reviews SHOULD be conducted at no more than ~500 lines per hour and in sessions of at most ~60 minutes (SmartBear/Cisco study) — defect detection collapses beyond either bound. The PR size limits above exist so a full review fits inside one such session.
 - Reviewers MUST review the change itself, not rubber-stamp — a review with no comments on a non-trivial change SHOULD state what was checked.
 - AI-generated code MUST be reviewed to the same standard as human-written code.
 
