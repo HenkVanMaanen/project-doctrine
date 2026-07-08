@@ -51,10 +51,11 @@ Runs after merge to main. Gates production deployment.
 17. **Chaos Tests** — fault injection against staging
 18. **DAST** — against staging
 19. **Load Tests** — if performance budgets are defined (see `performance.md`)
+20. **Lighthouse Audits** (webapp) — category budgets against seeded staging (see `performance.md`)
 
 **Track F — Production**:
-20. **Deploy to Production** — with approval gate
-21. **Smoke Tests** — post-deployment critical path verification (< 1 min, triggers rollback on failure)
+21. **Deploy to Production** — with approval gate
+22. **Smoke Tests** — post-deployment critical path verification (< 1 min, triggers rollback on failure)
 
 ### Deployment Strategy
 

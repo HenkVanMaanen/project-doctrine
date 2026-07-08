@@ -18,6 +18,19 @@ Applies to: all (Core Web Vitals for webapp only)
 - JavaScript bundle size budgets MUST be defined and enforced in CI.
 - Critical rendering path MUST be optimized.
 
+### Lighthouse Budgets (webapp)
+
+- Lighthouse audits MUST run in the deploy pipeline (Track E in `ci-cd.md`) against a production build served from the staging environment.
+- Category score budgets MUST be enforced as failing gates:
+  - Performance ≥ 90
+  - Accessibility = 100
+  - Best Practices = 100
+  - SEO = 100
+- Scores MUST be taken as the median of at least 3 runs with Lighthouse's default throttling — a single run MUST NOT gate (variance).
+- **Measurement validity**: the environment MUST be seeded with a representative data volume derived from the Discovery scale answers, using the seed factories from `database.md`. Running Lighthouse against an empty or near-empty database is NOT a valid measurement — list, table, dashboard, and search pages MUST be measured with realistic row counts, with pagination active. The seeded volume MUST be stated in the generated performance doc.
+- Budgets apply to every critical-path page: at minimum the landing page, authentication, the main list/dashboard, and the main detail view.
+- A Lighthouse Accessibility score of 100 is necessary but NOT sufficient for `accessibility.md` compliance — automated tooling covers only a fraction of the criteria; the manual audit still applies.
+
 ### API Performance
 
 - Response time budgets MUST be defined with explicit targets:
@@ -55,7 +68,8 @@ Applies to: all (Core Web Vitals for webapp only)
 
 The generated performance doc MUST:
 
-- Define performance budgets with specific numeric targets
+- Define performance budgets with specific numeric targets, including the Lighthouse category budgets and the pages they gate (webapp)
+- State the seeded data volume used for Lighthouse and load test measurements
 - Define load test scenarios derived from discovery traffic patterns
 - Specify caching strategy per resource type
 - Define performance testing approach and tools

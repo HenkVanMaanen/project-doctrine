@@ -283,6 +283,7 @@ Walk through the generated `docs/tier1-checklist.md` item by item. For each item
 - [ ] Coverage is enforced in CI pipeline (not just set in test config — CI step MUST fail the build on coverage below 90%)
 - [ ] Session-based auth (if used): sessions stored server-side in backing service, session ID regenerated on login, sessions invalidated server-side on logout
 - [ ] `docs/waivers.md` exists, and every deviation from a doctrine requirement maps to a user-approved waiver entry in it — deviations without a waiver are failed items
+- [ ] Lighthouse budgets gate the deploy pipeline (webapp only): Performance ≥ 90, Accessibility/Best Practices/SEO = 100, measured against a staging environment seeded with representative data volume — not an empty database
 
 If any check fails, fix it before proceeding.
 
