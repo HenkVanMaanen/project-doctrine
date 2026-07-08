@@ -103,7 +103,7 @@ Create one test file per type first (breadth), then deepen coverage. Do NOT writ
 - Chaos tests MUST be run against staging environments to validate resilience patterns.
 - Tests MUST simulate: dependency failures, network latency, pod/container termination, resource exhaustion.
 - Results MUST verify that circuit breakers, fallbacks, and graceful degradation work as documented in `resilience.md`.
-- Chaos testing in production MUST NOT occur without explicit user approval recorded as a waiver (see Compliance Model in the root `AGENTS.md`).
+- Chaos testing in production MUST NOT occur without explicit user approval recorded as a waiver (see doctrine Compliance Model in `skills/apply-doctrine/SKILL.md`).
 
 ### Infrastructure Tests
 

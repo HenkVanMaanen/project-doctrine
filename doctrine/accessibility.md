@@ -11,7 +11,7 @@ Applies to: webapp
 
 ## Conformance Model
 
-Blanket "Level AAA" conformance is not a valid target — the W3C itself states AAA cannot be required as general policy because some AAA criteria are impossible for certain content. Instead, this doctrine defines an exact, non-negotiable criterion set with factual applicability conditions. Whether a criterion applies is determined by the project's content inventory (established during Discovery) — never by an implementing agent's judgment of effort or value. Skipping an applicable criterion requires a user-approved waiver (see Compliance Model in the root `AGENTS.md`).
+Blanket "Level AAA" conformance is not a valid target — the W3C itself states AAA cannot be required as general policy because some AAA criteria are impossible for certain content. Instead, this doctrine defines an exact, non-negotiable criterion set with factual applicability conditions. Whether a criterion applies is determined by the project's content inventory (established during Discovery) — never by an implementing agent's judgment of effort or value. Skipping an applicable criterion requires a user-approved waiver (see doctrine Compliance Model in `skills/apply-doctrine/SKILL.md`).
 
 ### Baseline: Level A + AA — unconditional
 

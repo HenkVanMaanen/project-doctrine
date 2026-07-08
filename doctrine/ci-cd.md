@@ -9,7 +9,7 @@ Applies to: all
 - The **commit pipeline** (pre-merge) MUST complete in under 10 minutes.
 - The **deploy pipeline** (post-merge) MUST complete in under 20 minutes.
 - Pipeline stages MUST be maximally parallelized — independent stages MUST run concurrently.
-- If time budgets cannot be achieved, the overage requires a user-approved waiver (see Compliance Model in the root `AGENTS.md`), and the bottleneck MUST be documented with a remediation plan.
+- If time budgets cannot be achieved, the overage requires a user-approved waiver (see doctrine Compliance Model in `skills/apply-doctrine/SKILL.md`), and the bottleneck MUST be documented with a remediation plan.
 
 ### Pipeline Stages
 

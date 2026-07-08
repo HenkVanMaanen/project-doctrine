@@ -58,7 +58,7 @@ If the project is multi-tenant:
   - **Per-request activation**: `SET LOCAL app.current_tenant_id` (or equivalent) MUST be called at the start of every request transaction — not just WHERE clause filtering. This sets the session variable that RLS policies evaluate.
 - Having only `SET LOCAL` without database-level policies provides NO isolation. Having only policies without `SET LOCAL` means the variable is never set. Both MUST exist.
 - Tenant context MUST be propagated through all layers of the application.
-- Cross-tenant data access MUST be impossible by default — any exception requires a user-approved waiver (see Compliance Model in the root `AGENTS.md`) and an ADR documenting the access path.
+- Cross-tenant data access MUST be impossible by default — any exception requires a user-approved waiver (see doctrine Compliance Model in `skills/apply-doctrine/SKILL.md`) and an ADR documenting the access path.
 - Tenant isolation MUST be verified through automated tests (both data migration tests for policy existence and integration tests for runtime isolation).
 
 ### Data Protection Impact Assessment

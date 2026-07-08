@@ -54,7 +54,7 @@ The following MUST be configured:
 
 | Header | Value |
 |---|---|
-| `Content-Security-Policy` | Strict; `unsafe-inline`/`unsafe-eval` MUST NOT be used without a user-approved waiver (see Compliance Model in the root `AGENTS.md`) |
+| `Content-Security-Policy` | Strict; `unsafe-inline`/`unsafe-eval` MUST NOT be used without a user-approved waiver (see doctrine Compliance Model in `skills/apply-doctrine/SKILL.md`) |
 | `Strict-Transport-Security` | `max-age=31536000; includeSubDomains; preload` |
 | `X-Content-Type-Options` | `nosniff` |
 | `X-Frame-Options` | `DENY` (or CSP `frame-ancestors 'none'`) |

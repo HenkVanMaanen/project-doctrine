@@ -31,7 +31,7 @@ Applies to: all with AI/LLM features (established as a Discovery fact)
 
 - Tools exposed to a model MUST follow least privilege: each tool grants the minimum capability needed, scoped to the acting user's permissions — never a service-wide credential.
 - Authorization for tool actions MUST be enforced in the tool implementation (server side), not by prompt instructions.
-- Destructive or irreversible actions (delete, payment, external send) triggered via a model MUST require explicit human confirmation, or be covered by a user-approved waiver (see Compliance Model in the root `AGENTS.md`).
+- Destructive or irreversible actions (delete, payment, external send) triggered via a model MUST require explicit human confirmation, or be covered by a user-approved waiver (see doctrine Compliance Model in `skills/apply-doctrine/SKILL.md`).
 - Per-request loop/step limits MUST bound agentic execution (maximum tool calls per request).
 
 ### Data Protection

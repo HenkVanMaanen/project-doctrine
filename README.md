@@ -21,7 +21,7 @@ Then, inside any target repo:
 /apply-doctrine
 ```
 
-The skill orchestrates the whole workflow with parallel subagents: Discovery questions, doctrine reading + live standards verification concurrently, one generation agent per output doc, parallel consistency validators, then implementation fanned out per vertical slice with a final evidence-based compliance walk. On existing repos it inserts a parallel audit/gap-analysis phase first (see `skills/apply-doctrine/SKILL.md`).
+The skill (`skills/apply-doctrine/SKILL.md`) is the authoritative workflow. It orchestrates everything with parallel subagents: Discovery questions, doctrine reading + live standards verification concurrently, one generation agent per output doc, parallel consistency validators, then implementation fanned out per vertical slice with a final evidence-based compliance walk. On existing repos it inserts a parallel audit/gap-analysis phase first. The root `AGENTS.md` is a pointer to the skill for coding agents reading the repo directly.
 
 ### As a plain prompt
 

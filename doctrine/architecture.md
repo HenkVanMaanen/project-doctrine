@@ -18,7 +18,7 @@ Applies to: all
 - Slices MUST be independent — a slice MUST NOT import from another slice. Architecture tests MUST enforce this (see `testing.md`).
 - Do NOT use flat horizontal directory structures like `routes/`, `services/`, `repositories/` where all operations share a single directory per layer.
 - A `shared/` or `infrastructure/` directory MAY exist for true cross-cutting concerns (see Cross-Cutting Concerns below).
-- Deviations from vertical slice architecture require a user-approved waiver (see Compliance Model in the root `AGENTS.md`) — an agent-authored ADR is not sufficient.
+- Deviations from vertical slice architecture require a user-approved waiver (see doctrine Compliance Model in `skills/apply-doctrine/SKILL.md`) — an agent-authored ADR is not sufficient.
 
 ### Cross-Cutting Concerns
 
