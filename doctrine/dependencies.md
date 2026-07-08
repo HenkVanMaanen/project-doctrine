@@ -36,6 +36,7 @@ Applies to: all
 ## See Also
 
 - `security.md` — vulnerability scanning, SAST
+- `code-quality.md` — CISQ findings on open-source supply chain failures
 - `ci-cd.md` — security scan pipeline stage
 - `infrastructure.md` — container image dependency scanning
 

@@ -38,6 +38,7 @@ Pre-commit hooks MUST run:
 ## See Also
 
 - `ci-cd.md` — lint and format as first pipeline stage
+- `code-quality.md` — structural quality measures layered on top of linting
 - `documentation.md` — commit message conventions
 
 ## Output Requirements
