@@ -57,7 +57,7 @@ Applicability of each criterion below is a fact from the Discovery content inven
 | 2.2.6 Timeouts | Inactivity timeouts can cause data loss |
 | 3.1.3 Unusual Words | Content contains jargon or idioms |
 | 3.1.4 Abbreviations | Content contains abbreviations |
-| 3.1.5 Reading Level | Text content requires advanced reading ability |
+| 3.1.5 Reading Level | Automated readability score exceeds lower-secondary level (measured in CI — see Readability below, never judged by the agent) |
 | 3.1.6 Pronunciation | Meaning depends on pronunciation |
 
 ## Requirements
@@ -70,6 +70,13 @@ Applicability of each criterion below is a fact from the Discovery content inven
 - All interactive elements MUST be keyboard accessible with a logical tab order.
 - All media MUST have captions and transcripts per the conformance table; audio descriptions where the table requires them.
 - Accessibility MUST be tested with at least one screen reader flow per critical path (documented in the manual audit checklist).
+
+### Readability (automated gate for 3.1.5)
+
+- Automated readability scoring MUST run in CI over all user-facing text (externalized string files per `i18n.md`, and content files), using a formula appropriate to each supported language (e.g., Flesch-Kincaid or SMOG for English, Flesch-Douma or an equivalent Dutch index for Dutch).
+- The threshold is WCAG's own bar: lower secondary education level. Text scoring above it makes criterion 3.1.5 applicable as a fact — the implementing agent MUST then either simplify the text until the score passes, or provide a simplified supplemental version.
+- The readability score gates only the *trigger*; whether a simplified supplement adequately conveys the content is a manual audit item and MUST appear in the manual checklist.
+- Legal text, quoted material, and proper names MAY be excluded from scoring; exclusions MUST be listed in the generated accessibility doc, not applied silently.
 
 ## See Also
 
