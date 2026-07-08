@@ -41,9 +41,9 @@ The following test types MUST be implemented. Types marked "conditional" are REQ
 
 | Type | Scope | Condition |
 |---|---|---|
-| Snapshot | UI component output | Webapp with component-based UI framework |
-| Visual regression | Screenshot comparison | Webapp with visual fidelity requirements |
-| Load/performance | Throughput and latency under load | API or webapp with defined performance budgets (see `performance.md`) |
+| Snapshot | UI component output | Webapp with component-based UI framework (a stack fact) |
+| Visual regression | Screenshot comparison | Webapp (any UI — always true for webapps) |
+| Load/performance | Throughput and latency under load | API or webapp (performance budgets always exist for these — see `performance.md`) |
 
 ### Test Anti-Patterns
 
@@ -60,22 +60,24 @@ Each test type MUST use the technique appropriate to that type. A unit test rela
 | Test Type | What It MUST Do | What It MUST NOT Do |
 |---|---|---|
 | Unit | Test services and middleware with mocked dependencies | — |
-| Integration | Use Testcontainers to start PostgreSQL and Redis, run migrations, test auth flows and CRUD against the real database. Every test MUST make real SQL queries and assert on real query results | Mock the database, or skip when no DB is available |
-| E2E | Use Testcontainers for DB/Redis, boot the app, execute a full flow: register → login → create resource → verify. Assert on response status and body | Mock any infrastructure, or skip conditionally |
-| Contract | Use Testcontainers for DB/Redis, boot the app, load the **committed** `openapi.yaml` static file from disk (NOT the app's live spec endpoint), make real HTTP requests, validate response status codes, headers, and body shapes match the spec | Only validate YAML/JSON structure of the spec file, or just check endpoints return non-404 |
+| Integration | Use Testcontainers to start the project's backing services (database, cache, broker — whichever the fact sheet defines), run migrations, test auth flows and CRUD against the real database. Every test MUST make real queries and assert on real query results | Mock the database, or skip when no DB is available |
+| E2E | Use Testcontainers for all backing services, boot the app, execute a full flow: register → login → create resource → verify. For an API: real HTTP requests asserting on response status and body. For a webapp: browser-driven automation exercising the same flow through the real UI | Mock any infrastructure, skip conditionally, or test a webapp's E2E flow only at the HTTP level |
+| Contract | Use Testcontainers for backing services, boot the app, load the **committed** `openapi.yaml` static file from disk (NOT the app's live spec endpoint), make real HTTP requests, validate response status codes, headers, and body shapes match the spec | Only validate YAML/JSON structure of the spec file, or just check endpoints return non-404 |
 | Property-based | Use a property-based testing library to test domain invariants with random inputs | Use hand-picked inputs — that's a unit test |
-| Mutation | Invoke a real mutation testing tool with **actual code mutation** and assert on the exit code or mutation score. The tool MUST generate real mutants and kill them — `--dryRun`, `--list`, or any mode that skips actual mutation execution is NOT acceptable. A config file alone is NOT sufficient. The mutation score threshold MUST be ≥ 80%. Start with a focused subset of critical source files (validators, domain logic) to keep CI fast, then expand scope over time | Only create a config file, verify the tool is installed, or run in dry-run/list mode without generating real mutants |
+| Mutation | Invoke a real mutation testing tool with **actual code mutation** and assert on the exit code or mutation score. The tool MUST generate real mutants and kill them — `--dryRun`, `--list`, or any mode that skips actual mutation execution is NOT acceptable. A config file alone is NOT sufficient. The mutation score threshold MUST be ≥ 80%. Start with a focused subset of critical source files (validators, domain logic) and scope the mutated file set so the mutation stage fits the deploy pipeline time budget (`ci-cd.md`), then expand scope over time | Only create a config file, verify the tool is installed, or run in dry-run/list mode without generating real mutants |
 | Fuzz | Use the property-based testing library with arbitrary/random input generation to throw malformed data at parsers and validators | Use a small set of hand-crafted edge cases |
 | Architecture | Verify module dependency rules via a tool or by scanning imports. MUST fail if boundaries are crossed | Silently pass if the tool is unavailable |
 | Smoke | Boot the real app and verify critical paths respond correctly | — |
 | Chaos | Simulate real infrastructure failure: kill a Redis connection, inject latency, or use Testcontainers to stop a container. App MUST degrade gracefully | Only mock a module to throw |
 | Concurrency | Make concurrent requests to a real running app using actual parallelism | Generate values in a loop and check uniqueness |
-| Data migration | Use Testcontainers to start empty PostgreSQL, run migrations, query `information_schema` and `pg_policies` to verify tables, types, indexes, and RLS policies | Only read SQL file content, or skip when no DB is available |
+| Data migration | Use Testcontainers to start an empty instance of the project's database, run migrations, query the database's introspection catalog (`information_schema`, `pg_policies`, or equivalent) to verify tables, types, indexes, and RLS policies | Only read SQL file content, or skip when no DB is available |
 | Infrastructure | Verify Dockerfile structure (multi-stage, non-root, HEALTHCHECK), docker-compose services, and Terraform files | — |
 
 ### Testcontainers
 
-Tests requiring infrastructure (DB, Redis) MUST use Testcontainers. Do NOT gate tests behind environment variables — if the test exists, it MUST run as part of the standard test command.
+Tests requiring infrastructure (database, cache, broker) MUST use Testcontainers. Do NOT gate tests behind environment variables — if the test exists, it MUST run as part of the standard test command.
+
+Clarification: supplying a **target URL** to the post-deployment smoke suite is not environment-variable gating — the smoke suite MUST still run by default against a locally booted app, with the deploy pipeline passing the deployment URL as the target.
 
 ### Implementation Order
 
@@ -133,7 +135,7 @@ Create one test file per type first (breadth), then deepen coverage. Do NOT writ
 
 ### Load/Performance Tests
 
-- When performance budgets are defined (see `performance.md`), load tests MUST be implemented and run against staging.
+- Performance budgets always exist for APIs and webapps (`performance.md` applies to all) — load tests are therefore REQUIRED for those project types and MUST run against staging.
 - Load tests MUST cover: sustained load (expected traffic), spike load (sudden bursts), and soak testing (extended duration).
 - Load test pass/fail criteria MUST be tied to response time budgets (p50, p95, p99) and error rate SLOs.
 - Load tests SHOULD run in the deploy pipeline against staging (Track E in `ci-cd.md`).
@@ -165,7 +167,7 @@ Create one test file per type first (breadth), then deepen coverage. Do NOT writ
 
 The generated testing doc MUST:
 
-- Specify testing tools for the chosen stack (one per test type)
+- Specify testing tools for the chosen stack (a designated tool for each test type; one tool MAY serve multiple types)
 - Define the test directory structure
 - Include CI pipeline integration for all test types
 - Define architecture test rules for the project's layer structure

@@ -50,7 +50,7 @@ Runs after merge to main. Gates production deployment.
 16. **E2E Tests** — against staging
 17. **Chaos Tests** — fault injection against staging
 18. **DAST** — against staging
-19. **Load Tests** — if performance budgets are defined (see `performance.md`)
+19. **Load Tests** — API/webapp (budgets always defined — see `performance.md`)
 20. **Lighthouse Audits** (webapp) — category budgets against seeded staging (see `performance.md`)
 
 **Track F — Production**:
