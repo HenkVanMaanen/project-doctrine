@@ -19,9 +19,16 @@ Applies to: all
 ### Pull Requests
 
 - All changes MUST go through a pull request.
-- PRs MUST be limited to 400 lines changed (excluding generated code and lockfiles). Larger PRs MUST be split.
+- PRs MUST be limited to 400 lines changed (excluding generated code and lockfiles) and SHOULD stay under 200. Larger PRs MUST be split. Code review research (Google engineering practices, SmartBear/Cisco study) shows defect detection effectiveness drops sharply beyond ~400 changed lines and review turnaround grows superlinearly with size.
+- AI-generated changes MUST follow the same size limits — the DORA 2024 report found AI assistance tends to inflate batch size, which measurably reduces delivery stability.
 - PRs MUST pass all CI checks before merge.
 - PRs MUST be squash-merged to keep `main` history clean.
+
+### Code Review
+
+- Every PR MUST receive a first review response within one business day; small PRs SHOULD be reviewed within hours. Slow review turnaround is a leading cause of long change lead time (`dora.md`).
+- Reviewers MUST review the change itself, not rubber-stamp — a review with no comments on a non-trivial change SHOULD state what was checked.
+- AI-generated code MUST be reviewed to the same standard as human-written code.
 
 ### Branch Protection
 
@@ -37,7 +44,7 @@ Applies to: all
 - `documentation.md` — Conventional Commits format, ADRs
 - `versioning.md` — version bumps from commits
 - `ci-cd.md` — CI checks required for PR merge
-- `dora.md` — deployment frequency, lead time
+- `dora.md` — deployment frequency, lead time, batch size and stability
 
 ## Output Requirements
 

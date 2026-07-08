@@ -2,7 +2,7 @@
 
 Baseline versions of all standards referenced in this doctrine. LLMs SHOULD fetch the latest version at generation time. If fetching fails or the current version cannot be determined, use these as the known-good baseline.
 
-Last verified: 2026-03-01
+Last verified: 2026-07-08
 
 ## Standards
 
@@ -22,7 +22,11 @@ Last verified: 2026-03-01
 | SPDX | 2.3 (ISO/IEC 5962:2021) | https://spdx.dev/ |
 | FinOps Framework | — | https://www.finops.org/framework/ |
 | 12-Factor App | — | https://12factor.net |
-| DORA Metrics | — | https://dora.dev/guides/dora-metrics-four-keys/ |
+| DORA Metrics | Five metrics (2025) | https://dora.dev/guides/dora-metrics/ |
+| ISO/IEC 5055 (CISQ Automated Source Code Quality Measures) | 2021 | https://www.it-cisq.org/standards/code-quality-standards/ |
+| CWE (Common Weakness Enumeration) | living list | https://cwe.mitre.org/ |
+| SPACE Framework | 2021 (ACM Queue) | https://queue.acm.org/detail.cfm?id=3454124 |
+| DevEx Framework | 2023 (ACM Queue) | https://queue.acm.org/detail.cfm?id=3595878 |
 | AuthZEN | 1.0 (draft) | https://openid.net/specs/openid-authzen-authorization-api-1_0.html |
 | JSON:API | 1.1 | https://jsonapi.org/format/ |
 | GraphQL | October 2021 | https://spec.graphql.org/ |

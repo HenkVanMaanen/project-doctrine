@@ -22,7 +22,7 @@ Runs on every pull request. Gates merge to main.
 **Track A — Code Quality** (parallel):
 1. **Lint & Format** — code style enforcement (see `code-style.md`)
 2. **Build** — compile/bundle
-3. **Security Scan** — dependency vulnerabilities + SAST
+3. **Security & Quality Scan** — dependency vulnerabilities + SAST + structural quality gates per ISO 5055 (see `code-quality.md`)
 
 **Track B — Testing** (after build, parallel):
 4. **Architecture Tests** — structural rule enforcement
@@ -95,6 +95,7 @@ Runs after merge to main. Gates production deployment.
 
 - `testing.md` — test types and coverage requirements
 - `code-style.md` — formatting and linting in CI
+- `code-quality.md` — structural quality gates, maintainability limits
 - `security.md` — security scanning stages
 - `infrastructure.md` — Docker image building
 - `dora.md` — deployment frequency, lead time for changes

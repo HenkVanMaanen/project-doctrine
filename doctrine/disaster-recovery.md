@@ -57,7 +57,7 @@ Recovery MUST be testable in a non-production environment.
 - `database.md` — migration rollback, schema recovery
 - `infrastructure.md` — IaC for environment rebuild
 - `telemetry.md` — alerting on recovery test failures
-- `dora.md` — mean time to recovery metric
+- `dora.md` — failed deployment recovery time metric
 
 ## Output Requirements
 

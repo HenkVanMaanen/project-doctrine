@@ -73,7 +73,7 @@ Generate the following in the project's `docs/` directory. Independent docs MAY 
 | `docs/testing.md` | testing |
 | `docs/api.md` | api-design (API/webapp only) |
 | `docs/data-privacy.md` | data-privacy |
-| `docs/ci-cd.md` | ci-cd, code-style |
+| `docs/ci-cd.md` | ci-cd, code-style, code-quality |
 | `docs/resilience.md` | resilience |
 | `docs/i18n.md` | i18n (webapp only) |
 | `docs/performance.md` | performance |
@@ -304,6 +304,7 @@ Summarize:
 | `doctrine/dora.md` | all |
 | `doctrine/cli.md` | CLI |
 | `doctrine/code-style.md` | all |
+| `doctrine/code-quality.md` | all |
 | `doctrine/finops.md` | all |
 
 ## Priority Tiers

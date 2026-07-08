@@ -47,8 +47,9 @@ The LLM will:
 | [git-workflow.md](doctrine/git-workflow.md) | Trunk-based dev, short-lived branches | all |
 | [dependencies.md](doctrine/dependencies.md) | Lockfiles, license auditing, vulnerability SLA, SBOM | all |
 | [disaster-recovery.md](doctrine/disaster-recovery.md) | Backups, RTO/RPO, quarterly drills | all |
-| [dora.md](doctrine/dora.md) | Deployment frequency, lead time, MTTR, CFR | all |
+| [dora.md](doctrine/dora.md) | Five delivery metrics, AI as amplifier, SPACE/DevEx guardrails | all |
 | [code-style.md](doctrine/code-style.md) | Formatting, linting, EditorConfig | all |
+| [code-quality.md](doctrine/code-quality.md) | ISO 5055 structural quality, CWE weakness gates, technical debt | all |
 | [finops.md](doctrine/finops.md) | Cloud cost management, tagging, budgets | all |
 | [standards-versions.md](doctrine/standards-versions.md) | Baseline versions of all referenced standards | reference |
 
