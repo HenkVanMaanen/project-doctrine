@@ -74,6 +74,7 @@ The LLM will:
 | [incident-response.md](doctrine/incident-response.md) | Severities, on-call, postmortems, error budgets | all |
 | [ai-llm.md](doctrine/ai-llm.md) | Prompt injection, output handling, agency limits, evals | AI/LLM features |
 | [async-messaging.md](doctrine/async-messaging.md) | Queues, outbox, idempotent consumers, DLQ, background jobs | async processing |
+| [library.md](doctrine/library.md) | Public API surface, compatibility, publish pipeline with provenance | library |
 | [standards-versions.md](doctrine/standards-versions.md) | Baseline versions of all referenced standards | reference |
 
 ## Example Output
