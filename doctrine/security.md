@@ -54,7 +54,7 @@ The following MUST be configured:
 
 | Header | Value |
 |---|---|
-| `Content-Security-Policy` | Strict; no `unsafe-inline`/`unsafe-eval` unless justified in an ADR |
+| `Content-Security-Policy` | Strict; `unsafe-inline`/`unsafe-eval` MUST NOT be used without a user-approved waiver (see Compliance Model in the root `AGENTS.md`) |
 | `Strict-Transport-Security` | `max-age=31536000; includeSubDomains; preload` |
 | `X-Content-Type-Options` | `nosniff` |
 | `X-Frame-Options` | `DENY` (or CSP `frame-ancestors 'none'`) |
@@ -128,6 +128,8 @@ If the project handles file uploads, the following MUST be applied (per [OWASP F
 ## See Also
 
 - `secrets.md` — secret storage, rotation, and scanning
+- `ai-llm.md` — trust boundaries and output handling for model-backed features
+- `supply-chain.md` — build integrity, signing, dependency intake
 - `data-privacy.md` — data classification and GDPR compliance
 - `api-design.md` — API-level security (rate limiting, error handling)
 - `telemetry.md` — operational logging (distinct from audit logging)

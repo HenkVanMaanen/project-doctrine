@@ -72,6 +72,7 @@ Delivery metrics capture outcomes, not the capacity to produce them. Per the SPA
 ## See Also
 
 - `ci-cd.md` — pipeline, deployment strategy, feature flags
+- `incident-response.md` — MTTA/MTTR feed the recovery time metric
 - `git-workflow.md` — trunk-based development, batch size, review turnaround
 - `testing.md` — coverage, mutation testing, change failure prevention
 - `code-quality.md` — structural quality gates, technical debt

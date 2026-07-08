@@ -49,11 +49,11 @@ Recovery MUST be testable in a non-production environment.
 
 ### Incident Response
 
-- An incident response plan MUST be defined with roles and escalation paths.
-- Post-incident reviews MUST be conducted and documented (blameless postmortems).
+- Incident response requirements (severities, on-call, escalation, postmortems) are defined in `incident-response.md`. Quarterly drills MUST exercise that incident process, not only technical recovery.
 
 ## See Also
 
+- `incident-response.md` — severities, on-call, postmortems, error budget policy
 - `database.md` — migration rollback, schema recovery
 - `infrastructure.md` — IaC for environment rebuild
 - `telemetry.md` — alerting on recovery test failures

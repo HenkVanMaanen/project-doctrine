@@ -16,7 +16,17 @@ The generated project documentation is designed for implementation by AI agents 
 - Agents MAY execute tasks in parallel using subagents or agent teams.
 - Steps in this workflow that are independent SHOULD be parallelized across agents.
 - The generated project `AGENTS.md` MUST instruct implementing agents to work in parallel where possible.
-- No requirement should be softened due to perceived complexity — agents can implement comprehensive testing, full accessibility compliance, and complete observability.
+- No requirement may be softened due to perceived complexity — agents can implement comprehensive testing, full accessibility compliance, and complete observability. If a requirement genuinely cannot be met, it MUST be reported, never silently weakened (see Compliance Model).
+
+## Compliance Model
+
+Every requirement in this doctrine is **binary**: for any given project it is either met, waived by the user, or reported as non-compliant. There is no fourth state.
+
+- **Requirements are verifiable.** Each requirement has a verification method: an automated test, a CI gate, an introspection query, or a named manual audit step. Generated docs MUST state how each acceptance criterion is verified.
+- **Applicability is factual, not judgmental.** Whether a conditional requirement applies is determined by project facts established during Discovery (project type, multi-tenancy, content inventory, integrations) — never by an implementing agent's assessment of effort, complexity, or value. If the facts change later (e.g., video content is added to a webapp), the dependent requirements activate automatically.
+- **Only the user can waive a requirement.** A waiver MUST be granted explicitly by the human user and recorded in `docs/waivers.md` with: the requirement waived, the reason, the scope, an expiry or review date, and the date granted. Generation MUST produce `docs/waivers.md` as an initially empty register.
+- **ADRs are not waivers.** ADRs document decisions among doctrine-permitted options (e.g., REST vs. GraphQL, RBAC vs. ABAC). An agent-authored ADR MUST NOT be used to skip, weaken, or defer a requirement. Wherever doctrine text requires justification for a deviation, that means a user-approved waiver in `docs/waivers.md` — an ADR MAY document the context, but only the waiver grants the exception.
+- **Agents MUST NOT self-exempt.** Implementing agents MUST NOT waive, reinterpret, defer, or partially implement a requirement. If a requirement cannot be met, the agent MUST report it as a failed checklist item (Steps 10.9 and 10.10) — visibly, never silently worked around. Faking compliance (tautological tests, stubbed verifications, placeholder values) is a worse violation than reporting the gap.
 
 ## Workflow
 
@@ -45,6 +55,9 @@ These MUST be answered before generation can proceed:
 - **Monorepo or polyrepo**: single repo or multiple? (default: monorepo)
 - **Offline/PWA requirements?** (default: no)
 - **Expected traffic patterns**: sustained load, peak spikes, seasonal variation (default: even load, 2x peak)
+- **Content inventory (webapp)**: will the product include pre-recorded or live video, audio-only content, or media requiring captions/transcripts? (default: none) — this determines which media accessibility criteria apply (see `doctrine/accessibility.md`)
+- **AI/LLM features**: will the product call LLMs or process model output? (default: no)
+- **Asynchronous processing**: message queues, background jobs, event-driven flows? (default: none beyond scheduled cleanup jobs)
 
 ### Step 2: Read Doctrine
 
@@ -83,6 +96,10 @@ Generate the following in the project's `docs/` directory. Independent docs MAY 
 | `docs/disaster-recovery.md` | disaster-recovery |
 | `docs/documentation.md` | documentation |
 | `docs/finops.md` | finops |
+| `docs/supply-chain.md` | supply-chain |
+| `docs/incident-response.md` | incident-response |
+| `docs/ai-llm.md` | ai-llm (only if AI/LLM features exist) |
+| `docs/async.md` | async-messaging (only if async processing exists) |
 
 Each generated doc MUST:
 - Be concise and actionable
@@ -104,13 +121,13 @@ Alongside docs, generate applicable config files in the project root. This step 
 - PR template (`.github/pull_request_template.md` or equivalent)
 - `.env.example`
 - `CHANGELOG.md` (initial)
-- `LICENSE` (MIT — required for all projects)
+- `LICENSE` — derived from the Discovery answer: [MIT](https://opensource.org/licenses/MIT) (or the user's chosen OSI-approved license) for open-source projects; a proprietary all-rights-reserved notice for proprietary projects
 
 Only generate files applicable to the chosen stack and project type.
 
 ### Step 6: Generate Tier 1 Compliance Checklist
 
-Generate `docs/tier1-checklist.md` — a checklist covering all Tier 1 (non-negotiable) requirements from `security.md`, `data-privacy.md`, and `testing.md`. This checklist MUST be reviewed and confirmed before implementation begins.
+Generate `docs/tier1-checklist.md` — a checklist covering all Tier 1 (non-negotiable) requirements from `security.md`, `data-privacy.md`, `testing.md`, and — when AI/LLM features exist — `ai-llm.md`. This checklist MUST be reviewed and confirmed before implementation begins.
 
 ### Step 7: Validate Consistency
 
@@ -265,6 +282,7 @@ Walk through the generated `docs/tier1-checklist.md` item by item. For each item
 - [ ] RLS policies exist in migration SQL (query `pg_policies` or equivalent — `SET LOCAL` without policies provides no isolation)
 - [ ] Coverage is enforced in CI pipeline (not just set in test config — CI step MUST fail the build on coverage below 90%)
 - [ ] Session-based auth (if used): sessions stored server-side in backing service, session ID regenerated on login, sessions invalidated server-side on logout
+- [ ] `docs/waivers.md` exists, and every deviation from a doctrine requirement maps to a user-approved waiver entry in it — deviations without a waiver are failed items
 
 If any check fails, fix it before proceeding.
 
@@ -274,8 +292,8 @@ Summarize:
 - Total files generated (source, tests, config, docs)
 - All endpoints implemented with their HTTP methods
 - Test results (total tests, pass/fail, coverage percentage)
-- Any deviations from the generated docs with justification
-- Any items from the tier1-checklist that could not be implemented with justification
+- Any deviations from the generated docs, each mapped to its user-approved waiver in `docs/waivers.md`
+- Any items from the tier1-checklist that could not be implemented, reported as failed items awaiting a user decision (fix or waiver) — never silently dropped
 
 ## Doctrine Files
 
@@ -306,6 +324,10 @@ Summarize:
 | `doctrine/code-style.md` | all |
 | `doctrine/code-quality.md` | all |
 | `doctrine/finops.md` | all |
+| `doctrine/supply-chain.md` | all |
+| `doctrine/incident-response.md` | all |
+| `doctrine/ai-llm.md` | all with AI/LLM features |
+| `doctrine/async-messaging.md` | all with async processing |
 
 ## Priority Tiers
 
@@ -316,6 +338,7 @@ MUST be fully addressed before any implementation begins. A Tier 1 compliance ch
 - `security.md`
 - `data-privacy.md`
 - `testing.md`
+- `ai-llm.md` (when AI/LLM features exist — its trust-boundary, output-handling, and data-protection requirements are security requirements)
 
 ### Tier 2 — Required
 
@@ -335,4 +358,9 @@ If applying this doctrine to an existing codebase (not greenfield):
 
 ## License
 
-All projects MUST include the [MIT License](https://opensource.org/licenses/MIT).
+Every project MUST include a `LICENSE` file matching the Discovery answer:
+
+- **Open source** (Discovery answer "open source"): [MIT License](https://opensource.org/licenses/MIT) by default; another OSI-approved license MAY be chosen by the user.
+- **Proprietary** (the default): a proprietary all-rights-reserved license notice naming the copyright holder. The MIT License MUST NOT be applied to proprietary projects.
+
+This doctrine repository itself is MIT-licensed.

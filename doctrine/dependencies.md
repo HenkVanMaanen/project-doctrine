@@ -35,6 +35,7 @@ Applies to: all
 
 ## See Also
 
+- `supply-chain.md` — provenance, signing, dependency intake, CI hardening
 - `security.md` — vulnerability scanning, SAST
 - `code-quality.md` — CISQ findings on open-source supply chain failures
 - `ci-cd.md` — security scan pipeline stage

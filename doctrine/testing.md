@@ -32,7 +32,7 @@ The following test types MUST be implemented. Types marked "conditional" are REQ
 | Fuzz | Unexpected input handling | MUST run in CI with 1-minute time limit |
 | Architecture | Structural rules enforcement | MUST enforce dependency direction and slice isolation |
 | Smoke | Post-deployment verification | MUST run after every production deployment |
-| Chaos/fault injection | Resilience under failure | MUST run in staging; MUST NOT run in production without ADR |
+| Chaos/fault injection | Resilience under failure | MUST run in staging; MUST NOT run in production without a user-approved waiver |
 | Concurrency | Race conditions, thread safety | MUST test concurrent requests against a real running app |
 | Data migration | Migration correctness | MUST verify schema, types, indexes, and RLS policies |
 | Infrastructure | IaC and container validation | MUST validate Dockerfile, docker-compose, and Terraform structure |
@@ -103,7 +103,7 @@ Create one test file per type first (breadth), then deepen coverage. Do NOT writ
 - Chaos tests MUST be run against staging environments to validate resilience patterns.
 - Tests MUST simulate: dependency failures, network latency, pod/container termination, resource exhaustion.
 - Results MUST verify that circuit breakers, fallbacks, and graceful degradation work as documented in `resilience.md`.
-- Chaos testing in production MUST NOT occur without an explicit ADR and approval.
+- Chaos testing in production MUST NOT occur without explicit user approval recorded as a waiver (see Compliance Model in the root `AGENTS.md`).
 
 ### Infrastructure Tests
 

@@ -9,7 +9,7 @@ Applies to: all
 - The **commit pipeline** (pre-merge) MUST complete in under 10 minutes.
 - The **deploy pipeline** (post-merge) MUST complete in under 20 minutes.
 - Pipeline stages MUST be maximally parallelized — independent stages MUST run concurrently.
-- If time budgets cannot be achieved, the bottleneck MUST be documented in an ADR with a remediation plan.
+- If time budgets cannot be achieved, the overage requires a user-approved waiver (see Compliance Model in the root `AGENTS.md`), and the bottleneck MUST be documented with a remediation plan.
 
 ### Pipeline Stages
 
@@ -93,6 +93,7 @@ Runs after merge to main. Gates production deployment.
 
 ## See Also
 
+- `supply-chain.md` — build provenance, artifact signing, CI token permissions
 - `testing.md` — test types and coverage requirements
 - `code-style.md` — formatting and linting in CI
 - `code-quality.md` — structural quality gates, maintainability limits
