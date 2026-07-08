@@ -1,0 +1,13 @@
+{
+  "name": "project-doctrine",
+  "owner": {
+    "name": "Henk van Maanen"
+  },
+  "plugins": [
+    {
+      "name": "project-doctrine",
+      "source": "./",
+      "description": "Apply the Project Doctrine to any new or existing repository via the /apply-doctrine skill."
+    }
+  ]
+}

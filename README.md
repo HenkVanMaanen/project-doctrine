@@ -6,6 +6,25 @@ A strict, standards-based set of meta-instructions for LLMs to generate project-
 
 ## Usage
 
+### As a Claude Code skill (recommended)
+
+Install once, then apply the doctrine to any repository — new or existing:
+
+```
+/plugin marketplace add HenkVanMaanen/project-doctrine
+/plugin install project-doctrine@project-doctrine
+```
+
+Then, inside any target repo:
+
+```
+/apply-doctrine
+```
+
+The skill orchestrates the whole workflow with parallel subagents: Discovery questions, doctrine reading + live standards verification concurrently, one generation agent per output doc, parallel consistency validators, then implementation fanned out per vertical slice with a final evidence-based compliance walk. On existing repos it inserts a parallel audit/gap-analysis phase first (see `skills/apply-doctrine/SKILL.md`).
+
+### As a plain prompt
+
 Point an LLM (e.g., Claude Code) at this repository:
 
 ```
