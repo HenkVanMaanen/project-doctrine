@@ -38,7 +38,7 @@ Applies to: all
 
 ## Output Requirements
 
-The generated security doc MUST:
+Secrets requirements are folded into the generated security doc (per the Phase 3 mapping in `skills/apply-doctrine/SKILL.md`). That doc MUST:
 
 - Specify the secret manager for the chosen infrastructure
 - Define the rotation policy and schedule

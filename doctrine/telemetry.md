@@ -54,6 +54,7 @@ Service Level Objectives MUST be set for each SLI with explicit targets.
 
 ## See Also
 
+- `incident-response.md` — paging, runbooks, error budget policy driven by SLOs
 - `performance.md` — response time budgets, load testing
 - `infrastructure.md` — health check endpoints
 - `security.md` — audit logging (distinct from operational logging)

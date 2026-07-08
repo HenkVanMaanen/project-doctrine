@@ -21,13 +21,14 @@ Choose one of the following authentication strategies per project and document t
 - **Token-based (API, SPA)**: OAuth 2.0 ([RFC 6749](https://www.rfc-editor.org/rfc/rfc6749)) and OpenID Connect ([spec](https://openid.net/specs/openid-connect-core-1_0.html)) with JWTs ([RFC 7519](https://www.rfc-editor.org/rfc/rfc7519)) for stateless session tokens.
 - **Session-based (server-rendered webapp)**: Server-side sessions stored in a backing service (Redis or database), referenced by an opaque session ID in a secure cookie. Session data MUST NOT be stored in the application process (see `12-factor.md`).
 
-Regardless of strategy, the following MUST be implemented:
+The following MUST be implemented — the strategy-prefixed items for the chosen strategy, the rest always:
 
 - **Token-based**: Token lifetimes MUST be short-lived (≤ 15 minutes for access tokens). Refresh tokens MUST be bound to the client and rotated on use. Refresh token rotation MUST issue a new token on every use, invalidate the old one, and detect reuse (family invalidation).
 - **Session-based**: Sessions MUST have a defined TTL. Session IDs MUST be regenerated on login (to prevent session fixation). Sessions MUST be invalidated on logout (server-side deletion, not just cookie removal).
 - Account lockout MUST be implemented: lock accounts after N consecutive failed login attempts (recommended: 5 attempts, 15-minute lockout).
 - Password hashing MUST use the strongest available algorithm: argon2id (preferred), bcrypt (cost ≥ 12), or scrypt. SHA-256, MD5, and plain hashing MUST NOT be used for passwords.
 - For API key authentication: HMAC-SHA256 MUST be used (a keyed hash, e.g., `HMAC(key, secret)`) — NOT a plain `SHA-256(key)` digest. The HMAC secret MUST come from configuration, not be hardcoded.
+- The same rule applies to all stored credential material: refresh tokens and opaque session identifiers persisted server-side MUST be stored as keyed hashes (HMAC-SHA256), never plain digests or plaintext.
 
 ### Authorization
 
@@ -39,8 +40,8 @@ Regardless of strategy, the following MUST be implemented:
 
 ### Service-to-Service Authentication
 
-- Service-to-service communication MUST use OAuth 2.0 client credentials flow ([RFC 6749 Section 4.4](https://www.rfc-editor.org/rfc/rfc6749#section-4.4)) or mTLS ([RFC 8705](https://www.rfc-editor.org/rfc/rfc8705)).
-- API keys MUST NOT be used as the sole authentication mechanism for service-to-service communication.
+- **Internal** service-to-service communication (both services under this project's control) MUST use OAuth 2.0 client credentials flow ([RFC 6749 Section 4.4](https://www.rfc-editor.org/rfc/rfc6749#section-4.4)) or mTLS ([RFC 8705](https://www.rfc-editor.org/rfc/rfc8705)); API keys MUST NOT be the sole mechanism.
+- **External** third-party providers: use the strongest mechanism the vendor offers. A vendor offering only API-key authentication is a recorded fact, not a violation — the key MUST then be stored in the secret manager, scoped to least privilege, and rotated per `secrets.md`.
 
 ### Encryption
 
@@ -54,7 +55,7 @@ The following MUST be configured:
 
 | Header | Value |
 |---|---|
-| `Content-Security-Policy` | Strict; no `unsafe-inline`/`unsafe-eval` unless justified in an ADR |
+| `Content-Security-Policy` | Strict; `unsafe-inline`/`unsafe-eval` MUST NOT be used without a user-approved waiver (see doctrine Compliance Model in `skills/apply-doctrine/SKILL.md`) |
 | `Strict-Transport-Security` | `max-age=31536000; includeSubDomains; preload` |
 | `X-Content-Type-Options` | `nosniff` |
 | `X-Frame-Options` | `DENY` (or CSP `frame-ancestors 'none'`) |
@@ -118,7 +119,8 @@ If the project handles file uploads, the following MUST be applied (per [OWASP F
 ### Audit Logging
 
 - All data access and mutations MUST be logged to an audit trail.
-- Audit log entries MUST include: timestamp, actor (user/service), action, resource, outcome (success/failure), source IP.
+- Audit log entries MUST include: timestamp, actor (user/service), action, resource, outcome (success/failure), source IP. Where IP addresses are classified as PII, the source IP field MUST be recorded in pseudonymized form (hashed per `data-privacy.md`) — the field is mandatory, its plaintext is not.
+- The resulting audit volume (every access and mutation) is intentional — plan audit storage capacity and retention accordingly; do not reduce coverage to save volume.
 - Audit logs MUST be stored separately from application logs.
 - Audit logs MUST be tamper-evident (append-only, or signed).
 - Audit log retention MUST comply with `data-privacy.md` retention policies.
@@ -128,6 +130,8 @@ If the project handles file uploads, the following MUST be applied (per [OWASP F
 ## See Also
 
 - `secrets.md` — secret storage, rotation, and scanning
+- `ai-llm.md` — trust boundaries and output handling for model-backed features
+- `supply-chain.md` — build integrity, signing, dependency intake
 - `data-privacy.md` — data classification and GDPR compliance
 - `api-design.md` — API-level security (rate limiting, error handling)
 - `telemetry.md` — operational logging (distinct from audit logging)
@@ -144,7 +148,7 @@ The generated security doc MUST:
 - List all required HTTP security headers with exact values
 - Define cookie security policy (if webapp)
 - Specify chosen scanning tools and CI integration
-- Address each item in the current OWASP Top 10
+- Address each item in the OWASP Top 10 edition fetched at generation time — categories are restructured between editions (e.g., 2025 folds SSRF into Broken Access Control and adds Software Supply Chain Failures); map to the fetched edition's list, never an assumed one
 - Define the audit logging strategy and storage
 - Define file upload security measures (if applicable)
 - Define service-to-service authentication flow (if applicable)

@@ -18,7 +18,7 @@ Applies to: all
 - Slices MUST be independent — a slice MUST NOT import from another slice. Architecture tests MUST enforce this (see `testing.md`).
 - Do NOT use flat horizontal directory structures like `routes/`, `services/`, `repositories/` where all operations share a single directory per layer.
 - A `shared/` or `infrastructure/` directory MAY exist for true cross-cutting concerns (see Cross-Cutting Concerns below).
-- Deviations from vertical slice MUST be justified in an ADR.
+- Deviations from vertical slice architecture require a user-approved waiver (see doctrine Compliance Model in `skills/apply-doctrine/SKILL.md`) — an agent-authored ADR is not sufficient.
 
 ### Cross-Cutting Concerns
 
@@ -64,7 +64,7 @@ Applies to: all
 - `testing.md` — architecture tests enforce structural rules
 - `12-factor.md` — stateless processes, backing services
 - `api-design.md` — CQRS aligns with API command/query endpoints
-- `documentation.md` — ADRs for architectural deviations
+- `documentation.md` — ADRs for architectural decisions
 - `i18n.md` — timezone display is a localization concern
 - `security.md` — AuthZEN aligns with dependency rule for authorization
 

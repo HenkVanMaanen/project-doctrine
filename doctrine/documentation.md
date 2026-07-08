@@ -45,6 +45,11 @@ Applies to: all
 - API docs MUST be generated from OpenAPI spec or GraphQL schema.
 - API docs MUST be browsable in non-production environments.
 
+### Documentation Freshness
+
+- Documentation affected by a change MUST be updated in the same PR as the change — never deferred to a follow-up. Stale docs are worse than absent docs, and the DORA 2023 research found documentation quality amplifies every other delivery capability (`dora.md`).
+- Each doc MUST have an identifiable owner (CODEOWNERS or a listed maintainer).
+
 ## See Also
 
 - `git-workflow.md` — commit conventions, PR process

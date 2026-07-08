@@ -41,6 +41,7 @@ Applies to: all
 ## See Also
 
 - `telemetry.md` — metrics and alerting for circuit breaker state
+- `async-messaging.md` — retries, DLQs, and graceful shutdown for workers
 - `infrastructure.md` — health checks, container orchestration
 - `api-design.md` — backpressure, rate limiting
 - `testing.md` — chaos/fault injection tests validate resilience patterns

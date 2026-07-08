@@ -6,6 +6,25 @@ A strict, standards-based set of meta-instructions for LLMs to generate project-
 
 ## Usage
 
+### As a Claude Code skill (recommended)
+
+Install once, then apply the doctrine to any repository — new or existing:
+
+```
+/plugin marketplace add HenkVanMaanen/project-doctrine
+/plugin install project-doctrine@project-doctrine
+```
+
+Then, inside any target repo:
+
+```
+/apply-doctrine
+```
+
+The skill (`skills/apply-doctrine/SKILL.md`) is the authoritative workflow. It orchestrates everything with parallel subagents: Discovery questions, doctrine reading + live standards verification concurrently, one generation agent per output doc, parallel consistency validators, then implementation fanned out per vertical slice with a final evidence-based compliance walk. On existing repos it inserts a parallel audit/gap-analysis phase first. The root `AGENTS.md` is a pointer to the skill for coding agents reading the repo directly.
+
+### As a plain prompt
+
 Point an LLM (e.g., Claude Code) at this repository:
 
 ```
@@ -29,7 +48,7 @@ The LLM will:
 | [architecture.md](doctrine/architecture.md) | Vertical slices, CQRS, modular monolith, dependency rule, timestamps | all |
 | [12-factor.md](doctrine/12-factor.md) | Config, statelessness, dev/prod parity | all |
 | [security.md](doctrine/security.md) | OWASP, OAuth2/OIDC, AuthZEN, encryption, headers, audit logging | all |
-| [accessibility.md](doctrine/accessibility.md) | WCAG 2.2 AAA | webapp |
+| [accessibility.md](doctrine/accessibility.md) | WCAG 2.2 AA + enumerated AAA, EN 301 549 | webapp |
 | [telemetry.md](doctrine/telemetry.md) | OpenTelemetry, structured logging, SLOs | all |
 | [testing.md](doctrine/testing.md) | 15 test types, TDD/BDD, 90% coverage | all |
 | [api-design.md](doctrine/api-design.md) | REST/GraphQL, OpenAPI, rate limiting, deprecation | API, webapp |
@@ -51,6 +70,11 @@ The LLM will:
 | [code-style.md](doctrine/code-style.md) | Formatting, linting, EditorConfig | all |
 | [code-quality.md](doctrine/code-quality.md) | ISO 5055 structural quality, CWE weakness gates, technical debt | all |
 | [finops.md](doctrine/finops.md) | Cloud cost management, tagging, budgets | all |
+| [supply-chain.md](doctrine/supply-chain.md) | SLSA, artifact signing, provenance, CI hardening | all |
+| [incident-response.md](doctrine/incident-response.md) | Severities, on-call, postmortems, error budgets | all |
+| [ai-llm.md](doctrine/ai-llm.md) | Prompt injection, output handling, agency limits, evals | AI/LLM features |
+| [async-messaging.md](doctrine/async-messaging.md) | Queues, outbox, idempotent consumers, DLQ, background jobs | async processing |
+| [library.md](doctrine/library.md) | Public API surface, compatibility, publish pipeline with provenance | library |
 | [standards-versions.md](doctrine/standards-versions.md) | Baseline versions of all referenced standards | reference |
 
 ## Example Output
@@ -77,6 +101,11 @@ project-root/
 │   ├── disaster-recovery.md
 │   ├── documentation.md
 │   ├── finops.md
+│   ├── supply-chain.md
+│   ├── incident-response.md
+│   ├── ai-llm.md              # AI/LLM features only
+│   ├── async.md               # async processing only
+│   ├── waivers.md             # user-approved exception register
 │   └── tier1-checklist.md
 ├── .editorconfig
 ├── .gitignore

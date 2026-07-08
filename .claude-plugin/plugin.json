@@ -1,0 +1,8 @@
+{
+  "name": "project-doctrine",
+  "description": "Strict, standards-based doctrine for LLM-driven project generation: Discovery, doc generation, full implementation, and compliance verification — orchestrated with parallel subagents.",
+  "version": "1.0.0",
+  "author": {
+    "name": "Henk van Maanen"
+  }
+}

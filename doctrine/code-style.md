@@ -12,7 +12,9 @@ Applies to: all
 
 ### Linting
 
-- A linter MUST be configured with the strictest available configuration. All rules MUST be enabled by default — rules MAY only be disabled with explicit justification documented in the lint config file.
+- A linter MUST be configured with the strictest available configuration. All rules MUST be enabled by default.
+- Disabling a rule globally (in the lint config) requires a user-approved waiver (see doctrine Compliance Model in `skills/apply-doctrine/SKILL.md`), with the justification recorded in the config file next to the disabled rule. Implementing agents MUST NOT disable rules on their own authority.
+- Suppressing a single finding inline is permitted with a comment explaining why (see `code-quality.md` for the suppression policy) — inline suppressions are visible in code review; global disables are not.
 - Linting MUST be enforced in CI — builds MUST fail on lint errors.
 - Lint rules MUST NOT be disabled inline without a comment explaining why.
 

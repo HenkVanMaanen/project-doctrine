@@ -9,7 +9,7 @@ Applies to: all
 - The **commit pipeline** (pre-merge) MUST complete in under 10 minutes.
 - The **deploy pipeline** (post-merge) MUST complete in under 20 minutes.
 - Pipeline stages MUST be maximally parallelized — independent stages MUST run concurrently.
-- If time budgets cannot be achieved, the bottleneck MUST be documented in an ADR with a remediation plan.
+- If time budgets cannot be achieved, the overage requires a user-approved waiver (see doctrine Compliance Model in `skills/apply-doctrine/SKILL.md`), and the bottleneck MUST be documented with a remediation plan.
 
 ### Pipeline Stages
 
@@ -50,11 +50,12 @@ Runs after merge to main. Gates production deployment.
 16. **E2E Tests** — against staging
 17. **Chaos Tests** — fault injection against staging
 18. **DAST** — against staging
-19. **Load Tests** — if performance budgets are defined (see `performance.md`)
+19. **Load Tests** — API/webapp (budgets always defined — see `performance.md`)
+20. **Lighthouse Audits** (webapp) — category budgets against seeded staging (see `performance.md`)
 
 **Track F — Production**:
-20. **Deploy to Production** — with approval gate
-21. **Smoke Tests** — post-deployment critical path verification (< 1 min, triggers rollback on failure)
+21. **Deploy to Production** — with approval gate
+22. **Smoke Tests** — post-deployment critical path verification (< 1 min, triggers rollback on failure)
 
 ### Deployment Strategy
 
@@ -93,6 +94,7 @@ Runs after merge to main. Gates production deployment.
 
 ## See Also
 
+- `supply-chain.md` — build provenance, artifact signing, CI token permissions
 - `testing.md` — test types and coverage requirements
 - `code-style.md` — formatting and linting in CI
 - `code-quality.md` — structural quality gates, maintainability limits
